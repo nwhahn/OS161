@@ -66,7 +66,7 @@ sem_create(const char *name, unsigned initial_count)
 		kfree(sem);
 		return NULL;
 	}
-
+        
 	spinlock_init(&sem->sem_lock);
 	sem->sem_count = initial_count;
 
@@ -84,6 +84,8 @@ sem_destroy(struct semaphore *sem)
 	kfree(sem->sem_name);
 	kfree(sem);
 }
+k
+m
 
 void
 P(struct semaphore *sem)
@@ -153,6 +155,7 @@ lock_create(const char *name)
 		kfree(lock);
 		return NULL;
 	}
+        
 
 	// add stuff here as needed
 
@@ -173,16 +176,19 @@ lock_destroy(struct lock *lock)
 void
 lock_acquire(struct lock *lock)
 {
-	// Write this
+	KASSERT(lock != null);
+        KASSERT(curthread->t_in_interrupt==false);
 
-	(void)lock;  // suppress warning until code gets written
+        spinlock_acquire(&lock->
+               
+//	(void)lock;  // suppress warning until code gets written
 }
 
 void
 lock_release(struct lock *lock)
 {
 	// Write this
-
+        
 	(void)lock;  // suppress warning until code gets written
 }
 
