@@ -84,8 +84,6 @@ sem_destroy(struct semaphore *sem)
 	kfree(sem->sem_name);
 	kfree(sem);
 }
-k
-m
 
 void
 P(struct semaphore *sem)
@@ -155,8 +153,18 @@ lock_create(const char *name)
 		kfree(lock);
 		return NULL;
 	}
-        
+        //stuff after  here added
 
+        lock->lock_wchan = wchan_create(lock->lk_name);
+        if(lock->lock_wchan == NULL){
+
+        	kfree(lock->lk_name);
+                kfree(lock);
+                return NULL;    
+
+        }      
+        spinlock_init(&lock->std_lock);
+        lock->locked=0;
 	// add stuff here as needed
 
 	return lock;
@@ -166,7 +174,9 @@ void
 lock_destroy(struct lock *lock)
 {
 	KASSERT(lock != NULL);
-
+        //stuff after here was added
+        spinlock_cleanup(&lock->std_lock);
+        wchan_destroy(lock->lock_wchan);
 	// add stuff here as needed
 
 	kfree(lock->lk_name);
@@ -176,11 +186,18 @@ lock_destroy(struct lock *lock)
 void
 lock_acquire(struct lock *lock)
 {
-	KASSERT(lock != null);
+
+	KASSERT(lock!= NULL);
         KASSERT(curthread->t_in_interrupt==false);
 
-        spinlock_acquire(&lock->
-               
+        spinlock_acquire(&lock->std_lock); 
+        
+        if(lock->locked=0){
+                
+        	wchan_sleep(lock->lock_wchan,&lock->std_lock);
+        }
+        lock->locked=0
+        spinlock_release(&lock->std_lock);           
 //	(void)lock;  // suppress warning until code gets written
 }
 
