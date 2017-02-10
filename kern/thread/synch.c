@@ -165,8 +165,9 @@ lock_create(const char *name)
         }      
         spinlock_init(&lock->std_lock);
         lock->locked=0;
+        KASSERT(lock->locked==0);
 	// add stuff here as needed
-
+        
 	return lock;
 }
 
@@ -190,14 +191,15 @@ lock_acquire(struct lock *lock)
 	KASSERT(lock!= NULL);
         KASSERT(curthread->t_in_interrupt==false);
 
-        spinlock_acquire(&lock->std_lock); 
-        
-        if(lock->locked=0){
+//      spinlock_acquire(&lock->std_lock); 
+//      lock->locked++;
+//        KASSERT(lock->locked==1);
+//        while(lock->locked==1){
                 
-        	wchan_sleep(lock->lock_wchan,&lock->std_lock);
-        }
-        lock->locked=0
-        spinlock_release(&lock->std_lock);           
+//        	wchan_sleep(lock->lock_wchan,&lock->std_lock);
+//        }
+//        lock->locked=0;
+//        spinlock_release(&lock->std_lock);           
 //	(void)lock;  // suppress warning until code gets written
 }
 
@@ -205,8 +207,16 @@ void
 lock_release(struct lock *lock)
 {
 	// Write this
+        KASSERT(lock != NULL);
         
-	(void)lock;  // suppress warning until code gets written
+//        spinlock_acquire(&lock->std_lock);
+//        lock->locked=0;
+//        KASSERT(lock->locked==0);
+//        wchan_wakeone(lock->lock_wchan,&lock->std_lock);
+//        spinlock_release(&lock->std_lock);
+        
+        
+        //	(void)lock;  // suppress warning until code gets written
 }
 
 bool
