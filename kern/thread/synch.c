@@ -166,6 +166,7 @@ lock_create(const char *name)
         spinlock_init(&lock->std_lock);
         lock->locked=0;
         KASSERT(lock->locked==0);
+        lock->thread_name=curthread->t_name;
 	// add stuff here as needed
         
 	return lock;
@@ -189,17 +190,20 @@ lock_acquire(struct lock *lock)
 {
 
 	KASSERT(lock!= NULL);
-        KASSERT(curthread->t_in_interrupt==false);
+//      KASSERT(curthread->t_in_interrupt==false);
 
-//      spinlock_acquire(&lock->std_lock); 
-//      lock->locked++;
-//        KASSERT(lock->locked==1);
-//        while(lock->locked==1){
-                
-//        	wchan_sleep(lock->lock_wchan,&lock->std_lock);
-//        }
-//        lock->locked=0;
-//        spinlock_release(&lock->std_lock);           
+        spinlock_acquire(&lock->std_lock); 
+//	lock->locked=1;
+//        KASSERT(lock->locked==0);
+     //   while(lock->locked==0){
+       //                        
+	//       	wchan_sleep(lock->lock_wchan,&lock->std_lock);
+              //  lock->locked=0;
+      //}
+     // KASSERT(lock->locked==1);
+       // lock->locked=1;
+//      lock->locked=0;
+        spinlock_release(&lock->std_lock);           
 //	(void)lock;  // suppress warning until code gets written
 }
 
@@ -209,24 +213,26 @@ lock_release(struct lock *lock)
 	// Write this
         KASSERT(lock != NULL);
         
-//        spinlock_acquire(&lock->std_lock);
-//        lock->locked=0;
-//        KASSERT(lock->locked==0);
-//        wchan_wakeone(lock->lock_wchan,&lock->std_lock);
-//        spinlock_release(&lock->std_lock);
+        spinlock_acquire(&lock->std_lock);
+        lock->locked=1;
+        KASSERT(lock->locked==1);
+        wchan_wakeone(lock->lock_wchan,&lock->std_lock);
+        spinlock_release(&lock->std_lock);
         
         
-        //	(void)lock;  // suppress warning until code gets written
+  //      	(void)lock;  // suppress warning until code gets written
 }
 
 bool
 lock_do_i_hold(struct lock *lock)
 {
-	// Write this
+	if(strcmp(curthread->t_name,lock->thread_name)==0){
+           return true;
 
-	(void)lock;  // suppress warning until code gets written
+        }
+//	(void)lock;  // suppress warning until code gets written
 
-	return true; // dummy until code gets written
+	return false; // dummy until code gets written
 }
 
 ////////////////////////////////////////////////////////////
