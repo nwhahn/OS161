@@ -170,8 +170,8 @@ lock_create(const char *name)
 
               
         spinlock_init(&lock->std_lock);
-      //  lock->locked=0;
-      //  KASSERT(lock->locked==0);
+        lock->locked=0;
+        KASSERT(lock->locked==0);
         lock->thread_name=curthread->t_name;
 	// add stuff here as needed
         
@@ -201,20 +201,22 @@ lock_acquire(struct lock *lock)
         HANGMAN_WAIT(&curthread->t_hangman,&lock->lk_hangman)
         spinlock_acquire(&lock->std_lock); 
 //	lock->locked=1;
+//        KASSERT(lock->locked==1);
         HANGMAN_ACQUIRE(&curthread->t_hangman,&lock->lk_hangman);
         KASSERT(&lock->std_lock != NULL);
         KASSERT(lock->lock_wchan != NULL);
-         
-        while(lock_do_i_hold(lock)!=true){
+                
+       // while(lock_do_i_hold(lock)!=true){
       //    while(curthread->t_name == NULL){
-       //         lock->locked=0;                      
+      //          lock->locked=0;
+        while(lock->locked==1){                      
          	wchan_sleep(lock->lock_wchan,&lock->std_lock);
 	
         }
        
-     // KASSERT(lock->locked==1);
+       // KASSERT(lock->locked==0);
+        lock->locked=1;
        // lock->locked=1;
-       // lock->locked=0;
         spinlock_release(&lock->std_lock);           
 //	(void)lock;  // suppress warning until code gets written
 
@@ -236,8 +238,8 @@ lock_release(struct lock *lock)
         KASSERT(lock != NULL);
         
         spinlock_acquire(&lock->std_lock);
-       // lock->locked=1;
-      //  KASSERT(lock->locked==1);
+        lock->locked=0;
+      //1  KASSERT(lock->locked==1);
         wchan_wakeone(lock->lock_wchan,&lock->std_lock);
         spinlock_release(&lock->std_lock);
         HANGMAN_RELEASE(&curthread->t_hangman,&lock->lk->hangman);      
