@@ -154,7 +154,7 @@ lock_create(const char *name)
 		return NULL;
 	}
         //stuff after  here added
-
+        
 
         lock->lock_wchan = wchan_create(lock->lk_name);
         if(lock->lock_wchan == NULL){
@@ -172,7 +172,7 @@ lock_create(const char *name)
         spinlock_init(&lock->std_lock);
         lock->locked=0;
         KASSERT(lock->locked==0);
-        lock->thread_name=curthread->t_name;
+        lock->thread_name=NULL;
 	// add stuff here as needed
         
 	return lock;
@@ -196,27 +196,30 @@ lock_acquire(struct lock *lock)
 {
 
 
-	KASSERT(lock!= NULL);;
+	KASSERT(lock!= NULL);
+	
 //      KASSERT(curthread->t_in_interrupt==false);
-        HANGMAN_WAIT(&curthread->t_hangman,&lock->lk_hangman)
+       // HANGMAN_WAIT(&curthread->t_hangman,&lock->lk_hangman)
         spinlock_acquire(&lock->std_lock); 
 //	lock->locked=1;
 //        KASSERT(lock->locked==1);
-        HANGMAN_ACQUIRE(&curthread->t_hangman,&lock->lk_hangman);
+        HANGMAN_WAIT(&curthread->t_hangman,&lock->lk_hangman);
         KASSERT(&lock->std_lock != NULL);
         KASSERT(lock->lock_wchan != NULL);
                 
        // while(lock_do_i_hold(lock)!=true){
       //    while(curthread->t_name == NULL){
       //          lock->locked=0;
+
         while(lock->locked==1){                      
          	wchan_sleep(lock->lock_wchan,&lock->std_lock);
 	
         }
-       
-       // KASSERT(lock->locked==0);
-        lock->locked=1;
-       // lock->locked=1;
+        HANGMAN_ACQUIRE(&curthread->t_hangman,&lock->lk_hangman); 
+       // KASSERT(lock->locked==0) 
+        lock->thread_name=curthread->t_name;    
+	lock->locked=1;
+       //lock->locked=1;
         spinlock_release(&lock->std_lock);           
 //	(void)lock;  // suppress warning until code gets written
 
@@ -236,12 +239,22 @@ lock_release(struct lock *lock)
 
 	// Write this
         KASSERT(lock != NULL);
-        
+	if(lock_do_i_hold(lock)==false){
+        	panic("shit");
+	}
         spinlock_acquire(&lock->std_lock);
         lock->locked=0;
+       // lock->thread_name=NULL;
       //1  KASSERT(lock->locked==1);
         wchan_wakeone(lock->lock_wchan,&lock->std_lock);
-        spinlock_release(&lock->std_lock);
+        lock->thread_name=NULL;
+       // if(!lock_do_i_hold(lock)){
+        //	spinlock_release(&lock->std_lock);
+       // }
+      //  else{
+        //	panic("this panicked");
+       // }
+        //lock->thread_name=NULL;
         HANGMAN_RELEASE(&curthread->t_hangman,&lock->lk->hangman);      
           
   //      	(void)lock;  // suppress warning until code gets written
@@ -250,7 +263,8 @@ lock_release(struct lock *lock)
 bool
 lock_do_i_hold(struct lock *lock)
 {
-	if(strcmp(curthread->t_name,lock->thread_name)==0){
+//	if(strcmp(curthread->t_name,lock->thread_name)==0){
+        if(curthread->t_name==lock->thread_name){
            return true;
 
         }

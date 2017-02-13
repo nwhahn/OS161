@@ -179,68 +179,74 @@ locktestthread(void *junk, unsigned long num)
 		testval1 = num;
 		testval2 = num*num;
 		testval3 = num%3;
-                kprintf_n("values\n%lu\n%lu\n%lu\n",testval1,testval2,testval3);        
+      //          kprintf_n("values:%lu %lu %lu\n",testval1,testval2,testval3);        
 		if (testval2 != testval1*testval1) {
 			goto fail;
 		}
 		random_yielder(4);
-                kprintf_n("pass1");
+ //               kprintf_n("pass1");
 		if (testval2%3 != (testval3*testval3)%3) {
 			goto fail;
 		}
-                kprintf_n("pass2");
+    //            kprintf_n("pass2");
 		random_yielder(4);
 
 		if (testval3 != testval1%3) {
 			goto fail;
 		}
 		random_yielder(4);
-                kprintf_n("pass3");
+  //              kprintf_n("pass3");
 		if (testval1 != num) {
 			goto fail;
 		}
 		random_yielder(4);
-		kprintf_n("pass4");
+//		kprintf_n("pass4");
 		if (testval2 != num*num) {
 			goto fail;
 		}
 		random_yielder(4);
-                kprintf_n("pass5");
+//                kprintf_n("pass5");
 
 		if (testval3 != num%3) {
 			goto fail;
 		}
 		random_yielder(4);
-                kprintf_n("pass6");
-                bool x = !(lock_do_i_hold(testlock));
-                kprintf_n("%d\n",x);
+               // kprintf_n("pass6");
+//                bool x = !(lock_do_i_hold(testlock));
+        //        kprintf_n("%d\n",x);
 		if (!(lock_do_i_hold(testlock))) {
 			kprintf_n("sad");
 			goto fail;
                         
 		}
-                kprintf_n("pass7/n");
+           //     kprintf_n("pass7/n");
 		random_yielder(4);
-
+                
 		lock_release(testlock);
+   //             kprintf_n("failure");
 	}
 
 	/* Check for solutions that don't track ownership properly */
-
+        
 	for (i=0; i<NLOCKLOOPS; i++) {
 		kprintf_t(".");
+                
 		if (lock_do_i_hold(testlock)) {
 			goto fail2;
 		}
+      //          kprintf_n("i made it here");
 	}
 
 	V(donesem);
+        kprintf_n("wtf");
 	return;
 
 fail:
 	lock_release(testlock);
+        kprintf_n("fail1\n");
 fail2:
 	failif(true);
+        kprintf_n("fail2\n");
 	V(donesem);
 	return;
 }
@@ -292,7 +298,7 @@ locktest(int nargs, char **args)
                 KASSERT(donesem!=NULL);
 		P(donesem);
         }
-        kprintf_n("amazing\n");
+        kprintf_n("amazing2\n");
 	lock_destroy(testlock);
 	sem_destroy(donesem);
 	testlock = NULL;
