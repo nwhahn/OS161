@@ -74,7 +74,13 @@ void V(struct semaphore *);
  */
 struct lock {
         char *lk_name;
+        HANGMAN_LOCKABLE(lk_hangman);   // Deadlock detector hook.
         // add what you need here
+        char *thread_name;
+        struct wchan *lock_wchan;
+        struct spinlock std_lock;
+        volatile bool locked;
+      
         // (don't forget to mark things volatile as needed)
 };
 
@@ -113,10 +119,11 @@ bool lock_do_i_hold(struct lock *);
 
 struct cv {
         char *cv_name;
+        struct wchan *cv_wchan;
+        struct spinlock cv_lock;
         // add what you need here
         // (don't forget to mark things volatile as needed)
 };
-
 struct cv *cv_create(const char *name);
 void cv_destroy(struct cv *);
 
@@ -133,9 +140,10 @@ void cv_destroy(struct cv *);
  *
  * These operations must be atomic. You get to write them.
  */
+
 void cv_wait(struct cv *cv, struct lock *lock);
 void cv_signal(struct cv *cv, struct lock *lock);
-void cv_broadcast(struct cv *cv, struct lock *lock);
+void cv_broadcast(struct cv *cv, struct lock *lock); //will awake all threads under condition variable
 
 /*
  * Reader-writer locks.
