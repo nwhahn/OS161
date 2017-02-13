@@ -238,7 +238,7 @@ locktestthread(void *junk, unsigned long num)
 	}
 
 	V(donesem);
-        kprintf_n("wtf");
+        
 	return;
 
 fail:

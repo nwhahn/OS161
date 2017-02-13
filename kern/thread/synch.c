@@ -190,9 +190,12 @@ lock_destroy(struct lock *lock)
 	KASSERT(lock != NULL);
         //stuff after here was added
         
-	if(lock_do_i_hold(lock)==false){
-        	panic("shit");
-	}
+//	if(lock_do_i_hold(lock)==false){
+  //      	panic("");
+//	}        
+        if(lock->locked==1){
+        	panic("lock_destroy cannot be used when lock closed");
+        }
         spinlock_cleanup(&lock->std_lock);
         wchan_destroy(lock->lock_wchan);
 	// add stuff here as needed
@@ -209,7 +212,7 @@ lock_acquire(struct lock *lock)
 	KASSERT(lock!= NULL);
         	
 //	if(lock_do_i_hold(lock)==false){
-//        	panic("shit");
+//        	panic("");
 //	}
 //      KASSERT(curthread->t_in_interrupt==false);
        // HANGMAN_WAIT(&curthread->t_hangman,&lock->lk_hangman)
@@ -253,7 +256,7 @@ lock_release(struct lock *lock)
 	// Write this
         KASSERT(lock != NULL);
 	if(lock_do_i_hold(lock)==false){
-        	panic("shit");
+        	panic("failure at lock_release:different thread");
 	}
         spinlock_acquire(&lock->std_lock);
         lock->locked=0;
@@ -308,7 +311,13 @@ cv_create(const char *name)
 	}
 
 	// add stuff here as needed
-
+        cv->cv_wchan=wchan_create(cv->cv_name);
+        if(cv->cv_wchan == NULL){
+        	kfree(cv->cv_name);
+                kfree(cv);
+                return NULL;
+        }
+        spinlock_init(&cv->cv_lock);
 	return cv;
 }
 
@@ -318,7 +327,8 @@ cv_destroy(struct cv *cv)
 	KASSERT(cv != NULL);
 
 	// add stuff here as needed
-
+        spinlock_cleanup(&cv->cv_lock);
+        wchan_destroy(cv->cv_wchan);
 	kfree(cv->cv_name);
 	kfree(cv);
 }
@@ -327,8 +337,10 @@ void
 cv_wait(struct cv *cv, struct lock *lock)
 {
 	// Write this
+        lock_release(lock);
+        lock_acquire(lock);        
 	(void)cv;    // suppress warning until code gets written
-	(void)lock;  // suppress warning until code gets written
+//	(void)lock;  // suppress warning until code gets written
 }
 
 void
