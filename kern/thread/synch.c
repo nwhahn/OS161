@@ -155,6 +155,9 @@ lock_create(const char *name)
 	}
         //stuff after  here added
         
+//	if(lock_do_i_hold(lock)==false){
+  //      	panic("shit");
+//	}
 
         lock->lock_wchan = wchan_create(lock->lk_name);
         if(lock->lock_wchan == NULL){
@@ -167,8 +170,11 @@ lock_create(const char *name)
 
 	// add stuff here as needed
 
+//	if(lock_do_i_hold(lock)==false){
+  //      	panic("shit");
+//	}
 
-              
+             
         spinlock_init(&lock->std_lock);
         lock->locked=0;
         KASSERT(lock->locked==0);
@@ -183,6 +189,10 @@ lock_destroy(struct lock *lock)
 {
 	KASSERT(lock != NULL);
         //stuff after here was added
+        
+	if(lock_do_i_hold(lock)==false){
+        	panic("shit");
+	}
         spinlock_cleanup(&lock->std_lock);
         wchan_destroy(lock->lock_wchan);
 	// add stuff here as needed
@@ -197,7 +207,10 @@ lock_acquire(struct lock *lock)
 
 
 	KASSERT(lock!= NULL);
-	
+        	
+//	if(lock_do_i_hold(lock)==false){
+//        	panic("shit");
+//	}
 //      KASSERT(curthread->t_in_interrupt==false);
        // HANGMAN_WAIT(&curthread->t_hangman,&lock->lk_hangman)
         spinlock_acquire(&lock->std_lock); 
@@ -249,7 +262,7 @@ lock_release(struct lock *lock)
         wchan_wakeone(lock->lock_wchan,&lock->std_lock);
         lock->thread_name=NULL;
        // if(!lock_do_i_hold(lock)){
-        //	spinlock_release(&lock->std_lock);
+        	spinlock_release(&lock->std_lock);
        // }
       //  else{
         //	panic("this panicked");
