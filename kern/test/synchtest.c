@@ -446,6 +446,7 @@ cvtest(int nargs, char **args)
 			sem_destroy(donesem);
 		}
 	}
+        kprintf_n("reached here\n");
 	spinlock_init(&status_lock);
 	test_status = TEST161_SUCCESS;
 
@@ -502,20 +503,26 @@ sleepthread(void *junk1, unsigned long junk2)
 	unsigned i, j;
 
 	random_yielder(4);
-
+      // kprintf_n("hesda\n");
 	for (j=0; j<NLOOPS; j++) {
 		kprintf_t(".");
+        //      kprintf_n("lala");
 		for (i=0; i<NCVS; i++) {
 			lock_acquire(testlocks[i]);
 			random_yielder(4);
+                   //     kprintf_n("dope");
 			V(gatesem);
 			random_yielder(4);
+                 //       kprintf_n("ugh");
 			spinlock_acquire(&status_lock);
 			testval4++;
 			spinlock_release(&status_lock);
+//                        kprintf_n("dadsa");
 			cv_wait(testcvs[i], testlocks[i]);
+  //                      kprintf_n("green");
 			random_yielder(4);
 			lock_release(testlocks[i]);
+               //         kprintf_n("wow");
 		}
 		kprintf_n("sleepthread: %u\n", j);
 	}
@@ -532,9 +539,10 @@ wakethread(void *junk1, unsigned long junk2)
 	unsigned i, j;
 
 	random_yielder(4);
-
+       // kprintf_n("here");
 	for (j=0; j<NLOOPS; j++) {
 		kprintf_t(".");
+//                kprintf_n("green");
 		for (i=0; i<NCVS; i++) {
 			random_yielder(4);
 			P(gatesem);
@@ -549,7 +557,9 @@ wakethread(void *junk1, unsigned long junk2)
 		}
 		kprintf_n("wakethread: %u\n", j);
 	}
+        kprintf_n("error?");
 	V(exitsem);
+       // kprintf_n("error?");
 }
 
 int
@@ -577,6 +587,7 @@ cvtest2(int nargs, char **args)
 			sem_destroy(exitsem);
 		}
 	}
+        kprintf_n("got here\n");
 	for (i=0; i<NCVS; i++) {
 		kprintf_t(".");
 		testlocks[i] = lock_create("cvtest2 lock");
@@ -584,18 +595,19 @@ cvtest2(int nargs, char **args)
 	}
 	spinlock_init(&status_lock);
 	test_status = TEST161_SUCCESS;
-
+//        kprintf_n("fasfa\n");
 	result = thread_fork("cvt2", NULL, sleepthread, NULL, 0);
 	if (result) {
 		panic("cvt2: thread_fork failed\n");
 	}
+       // kprintf_n("afsfsfa\n");
 	result = thread_fork("cvt2", NULL, wakethread, NULL, 0);
 	if (result) {
 		panic("cvt2: thread_fork failed\n");
 	}
 	P(exitsem);
 	P(exitsem);
-
+        kprintf_n("wat\n");
 	sem_destroy(exitsem);
 	sem_destroy(gatesem);
 	exitsem = gatesem = NULL;
@@ -711,7 +723,7 @@ wakerthread(void *junk1, unsigned long junk2) {
 	lock_acquire(testlock2);
 	failif((testval1 != 2));
 	testval1 = 3;
-
+        
 	random_yielder(4);
 	cv_signal(testcv, testlock2);
 	random_yielder(4);
