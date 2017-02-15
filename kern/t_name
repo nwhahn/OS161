@@ -1,0 +1,109 @@
+include/current.h: * make curcpu be curthread->t_cpu.
+include/current.h:#define curcpu curthread->t_cpu
+include/current.h:#define curproc (curthread->t_proc)
+vm/copyinout.c:	longjmp(curthread->t_machdep.tm_copyjmp, 1);
+vm/copyinout.c:	curthread->t_machdep.tm_badfaultfunc = copyfail;
+vm/copyinout.c:	result = setjmp(curthread->t_machdep.tm_copyjmp);
+vm/copyinout.c:		curthread->t_machdep.tm_badfaultfunc = NULL;
+vm/copyinout.c:	curthread->t_machdep.tm_badfaultfunc = NULL;
+vm/copyinout.c:	curthread->t_machdep.tm_badfaultfunc = copyfail;
+vm/copyinout.c:	result = setjmp(curthread->t_machdep.tm_copyjmp);
+vm/copyinout.c:		curthread->t_machdep.tm_badfaultfunc = NULL;
+vm/copyinout.c:	curthread->t_machdep.tm_badfaultfunc = NULL;
+vm/copyinout.c:	curthread->t_machdep.tm_badfaultfunc = copyfail;
+vm/copyinout.c:	result = setjmp(curthread->t_machdep.tm_copyjmp);
+vm/copyinout.c:		curthread->t_machdep.tm_badfaultfunc = NULL;
+vm/copyinout.c:	curthread->t_machdep.tm_badfaultfunc = NULL;
+vm/copyinout.c:	curthread->t_machdep.tm_badfaultfunc = copyfail;
+vm/copyinout.c:	result = setjmp(curthread->t_machdep.tm_copyjmp);
+vm/copyinout.c:		curthread->t_machdep.tm_badfaultfunc = NULL;
+vm/copyinout.c:	curthread->t_machdep.tm_badfaultfunc = NULL;
+lib/kprintf.c:		&& curthread->t_in_interrupt == false
+lib/kprintf.c:		&& curthread->t_curspl == 0
+dev/generic/console.c:	else if (curthread->t_in_interrupt ||
+dev/generic/console.c:		 curthread->t_curspl > 0 ||
+dev/generic/console.c:	KASSERT(!curthread->t_in_interrupt && curthread->t_iplhigh_count == 0);
+thread/thread.c:	c->c_curthread->t_cpu = c;
+thread/thread.c:		 * Leave c->c_curthread->t_stack NULL for the boot
+thread/thread.c:		/*c->c_curthread->t_stack = ... */
+thread/thread.c:		c->c_curthread->t_stack = kmalloc(STACK_SIZE);
+thread/thread.c:		if (c->c_curthread->t_stack == NULL) {
+thread/thread.c:		curthread->t_cpu = curcpu;
+thread/thread.c:	KASSERT(curthread->t_proc != NULL);
+thread/thread.c:	KASSERT(curthread->t_proc == kproc);
+thread/thread.c:	newthread->t_cpu = curthread->t_cpu;
+thread/thread.c:		proc = curthread->t_proc;
+thread/thread.c:	DEBUGASSERT(curthread->t_cpu == curcpu->c_self);
+thread/thread.c:	KASSERT(!curthread->t_in_interrupt);
+Binary file thread/.synch.c.swl matches
+Binary file thread/.synch.c.swk matches
+thread/synch.c:	KASSERT(curthread->t_in_interrupt == false);
+thread/synch.c:       // lock->thread_name=&curthread->t_cpu;
+thread/synch.c://      KASSERT(curthread->t_in_interrupt==false);
+thread/spl.c: * curthread->t_iplhigh_count is used to track this.
+Binary file thread/.synch.c.swp matches
+Binary file thread/.synch.c.swo matches
+Binary file thread/.synch.c.swn matches
+Binary file thread/.synch.c.swm matches
+Binary file compile/DUMBVM/main.o matches
+Binary file compile/DUMBVM/console.o matches
+Binary file compile/DUMBVM/semunit.o matches
+main/main.c:	KASSERT(curthread->t_curspl > 0);
+main/main.c:	KASSERT(curthread->t_curspl == 0);
+test/synchprobs.c:	threads[index] = curthread->t_stack;
+test/synchprobs.c:	failif((threads[index] != curthread->t_stack), "failed: incorrect thread type");
+test/synchprobs.c:	kprintf_n("%s starting\n", curthread->t_name);
+test/synchprobs.c:	kprintf_n("%s ending\n", curthread->t_name);
+test/synchprobs.c:	kprintf_n("%s starting\n", curthread->t_name);
+test/synchprobs.c:	kprintf_n("%s ending\n", curthread->t_name);
+test/synchprobs.c:	kprintf_n("%s starting\n", curthread->t_name);
+test/synchprobs.c:	kprintf_n("%s ending\n", curthread->t_name);
+test/synchprobs.c:	kprintf_n("%s in quadrant %d\n", curthread->t_name, quadrant);
+test/synchprobs.c:	kprintf_n("%s left the intersection\n", curthread->t_name);
+test/semunit.c:	 * curthread->t_in_interrupt.
+test/semunit.c:		KASSERT(curthread->t_in_interrupt == false);
+test/semunit.c:		curthread->t_in_interrupt = true;
+test/semunit.c:		KASSERT(curthread->t_in_interrupt == true);
+test/semunit.c:		curthread->t_in_interrupt = false;
+test/semunit.c:		KASSERT(curthread->t_in_interrupt == false);
+test/semunit.c:		curthread->t_in_interrupt = true;
+test/semunit.c:		KASSERT(curthread->t_in_interrupt == true);
+test/semunit.c:		curthread->t_in_interrupt = false;
+test/semunit.c:		KASSERT(curthread->t_in_interrupt == false);
+test/semunit.c:		curthread->t_in_interrupt = true;
+test/semunit.c:		KASSERT(curthread->t_in_interrupt == true);
+test/semunit.c:		curthread->t_in_interrupt = false;
+test/semunit.c:	curthread->t_in_interrupt = true;
+test/semunit.c:	curthread->t_in_interrupt = true;
+arch/sys161/dev/lamebus_machdep.c:	KASSERT(curthread->t_curspl > 0);
+arch/sys161/dev/lamebus_machdep.c:	KASSERT(curthread->t_curspl > 0);
+arch/mips/vm/dumbvm.c:		KASSERT(curthread->t_in_interrupt == 0);
+arch/mips/thread/cpu.c:	if (c->c_curthread->t_stack == NULL) {
+arch/mips/thread/cpu.c:		stackpointer = (vaddr_t) c->c_curthread->t_stack;
+arch/mips/syscall/syscall.c:	KASSERT(curthread->t_curspl == 0);
+arch/mips/syscall/syscall.c:	KASSERT(curthread->t_iplhigh_count == 0);
+arch/mips/syscall/syscall.c:	KASSERT(curthread->t_curspl == 0);
+arch/mips/syscall/syscall.c:	KASSERT(curthread->t_iplhigh_count == 0);
+arch/mips/locore/trap.c:	if (curthread != NULL && curthread->t_stack != NULL) {
+arch/mips/locore/trap.c:		KASSERT((vaddr_t)tf > (vaddr_t)curthread->t_stack);
+arch/mips/locore/trap.c:		KASSERT((vaddr_t)tf < (vaddr_t)(curthread->t_stack
+arch/mips/locore/trap.c:		old_in = curthread->t_in_interrupt;
+arch/mips/locore/trap.c:		curthread->t_in_interrupt = 1;
+arch/mips/locore/trap.c:		if (curthread->t_curspl == 0) {
+arch/mips/locore/trap.c:			KASSERT(curthread->t_curspl == 0);
+arch/mips/locore/trap.c:			KASSERT(curthread->t_iplhigh_count == 0);
+arch/mips/locore/trap.c:			curthread->t_curspl = IPL_HIGH;
+arch/mips/locore/trap.c:			curthread->t_iplhigh_count++;
+arch/mips/locore/trap.c:			KASSERT(curthread->t_curspl == IPL_HIGH);
+arch/mips/locore/trap.c:			KASSERT(curthread->t_iplhigh_count == 1);
+arch/mips/locore/trap.c:			curthread->t_iplhigh_count--;
+arch/mips/locore/trap.c:			curthread->t_curspl = 0;
+arch/mips/locore/trap.c:		curthread->t_in_interrupt = old_in;
+arch/mips/locore/trap.c:		KASSERT(curthread->t_curspl == 0);
+arch/mips/locore/trap.c:		KASSERT(curthread->t_iplhigh_count == 0);
+arch/mips/locore/trap.c:	    curthread->t_machdep.tm_badfaultfunc != NULL) {
+arch/mips/locore/trap.c:		tf->tf_epc = (vaddr_t) curthread->t_machdep.tm_badfaultfunc;
+arch/mips/locore/trap.c:	if (curthread->t_stack == NULL) {
+arch/mips/locore/trap.c:	cpustacks[curcpu->c_number] = (vaddr_t)curthread->t_stack + STACK_SIZE;
+arch/mips/locore/trap.c:	 *   (1) curthread->t_stack is corrupted, or
+arch/mips/locore/trap.c:	cpustacks[curcpu->c_number] = (vaddr_t)curthread->t_stack + STACK_SIZE;
