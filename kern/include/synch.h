@@ -159,6 +159,9 @@ struct rwlock {
         char *rwlock_name;
         // add what you need here
         struct wchan *rw_wchan;
+        struct spinlock rw_lock;
+        volatile bool write_lock;
+        volatile int read_locks;
         // (don't forget to mark things volatile as needed)
 };
 

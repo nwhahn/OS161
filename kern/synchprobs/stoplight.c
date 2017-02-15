@@ -75,6 +75,9 @@
 
 void
 stoplight_init() {
+	
+
+
 	return;
 }
 
