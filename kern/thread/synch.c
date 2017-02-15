@@ -258,6 +258,7 @@ lock_release(struct lock *lock)
         	panic("failure at lock_release:different thread");
 	}
         spinlock_acquire(&lock->std_lock);
+        
         lock->locked=0;
        // lock->thread_name=NULL;
       //1  KASSERT(lock->locked==1);
@@ -343,17 +344,19 @@ cv_wait(struct cv *cv, struct lock *lock)
         	panic("cv wait failure: thread does not hold lock");
 	}
        // lock->lock_wchan=cv->cv_wchan;
-        lock_release(lock);
-        spinlock_acquire(&cv->cv_lock);
        // lock_release(lock);
+       // lock->locked=1;
+        spinlock_acquire(&cv->cv_lock);
+        lock_release(lock);
        // while(curthread->t_wchan_name!=NULL){
       //  while(){
+  
    	wchan_sleep(cv->cv_wchan,&cv->cv_lock); 
-      //  }
+        
        // cv_signal(cv,lock);
     //    wchan_wakeone(cv->cv_wchan,&lock->std_lock);    
    //     lock_acquire(lock);
-        
+ 
         spinlock_release(&cv->cv_lock);
         lock_acquire(lock);        
 //	(void)cv;    // suppress warning until code gets written
