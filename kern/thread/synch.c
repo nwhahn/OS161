@@ -481,7 +481,8 @@ rwlock_acquire_write(struct rwlock *rw){
 
 void
 rwlock_release_write(struct rwlock *rw){
-
+        KASSERT(rw!=NULL);
+	
 	(void)rw;
 }
 
