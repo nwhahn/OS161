@@ -223,9 +223,8 @@ lock_acquire(struct lock *lock)
         KASSERT(&lock->std_lock != NULL);
         KASSERT(lock->lock_wchan != NULL);
                 
-       // while(lock_do_i_hold(lock)!=true){
+      // while(lock_do_i_hold(lock)!=true){
       //    while(curthread->t_name == NULL){
-      //          lock->locked=0;
 
         while(lock->locked==1){                      
          	wchan_sleep(lock->lock_wchan,&lock->std_lock);
@@ -259,6 +258,7 @@ lock_release(struct lock *lock)
         	panic("failure at lock_release:different thread");
 	}
         spinlock_acquire(&lock->std_lock);
+        
         lock->locked=0;
        // lock->thread_name=NULL;
       //1  KASSERT(lock->locked==1);
@@ -317,6 +317,7 @@ cv_create(const char *name)
                 kfree(cv);
                 return NULL;
         }
+
         spinlock_init(&cv->cv_lock);
 	return cv;
 }
@@ -337,9 +338,28 @@ void
 cv_wait(struct cv *cv, struct lock *lock)
 {
 	// Write this
+        KASSERT(lock!=NULL);
+        KASSERT(cv!=NULL);
+        if(lock_do_i_hold(lock)==false){
+        	panic("cv wait failure: thread does not hold lock");
+	}
+       // lock->lock_wchan=cv->cv_wchan;
+       // lock_release(lock);
+       // lock->locked=1;
+        spinlock_acquire(&cv->cv_lock);
         lock_release(lock);
+       // while(curthread->t_wchan_name!=NULL){
+      //  while(){
+  
+   	wchan_sleep(cv->cv_wchan,&cv->cv_lock); 
+        
+       // cv_signal(cv,lock);
+    //    wchan_wakeone(cv->cv_wchan,&lock->std_lock);    
+   //     lock_acquire(lock);
+ 
+        spinlock_release(&cv->cv_lock);
         lock_acquire(lock);        
-	(void)cv;    // suppress warning until code gets written
+//	(void)cv;    // suppress warning until code gets written
 //	(void)lock;  // suppress warning until code gets written
 }
 
@@ -347,14 +367,96 @@ void
 cv_signal(struct cv *cv, struct lock *lock)
 {
 	// Write this
-	(void)cv;    // suppress warning until code gets written
-	(void)lock;  // suppress warning until code gets written
+        KASSERT(lock!=NULL);
+        spinlock_acquire(&cv->cv_lock);
+        wchan_wakeone(cv->cv_wchan,&cv->cv_lock);
+     //   lock_acquire(lock);
+        spinlock_release(&cv->cv_lock);
+//	(void)cv;    // suppress warning until code gets written
+//	(void)lock;  // suppress warning until code gets written
 }
 
 void
 cv_broadcast(struct cv *cv, struct lock *lock)
 {
+        KASSERT(lock!=NULL);
+        KASSERT(cv!=NULL);
+        if(lock_do_i_hold(lock)==false){
+        	panic("cv broadcast error:lock is held");
+        }
 	// Write this
-	(void)cv;    // suppress warning until code gets written
-	(void)lock;  // suppress warning until code gets written
+        spinlock_acquire(&cv->cv_lock);
+        wchan_wakeall(cv->cv_wchan,&cv->cv_lock);
+      //  lock_acquire(lock);
+        spinlock_release(&cv->cv_lock);
+//	(void)cv;    // suppress warning until code gets written
+//	(void)lock;  // suppress warning until code gets written
 }
+
+////////////////////////////////////////////////////////////
+//RW LOCKS
+////////////////////////////////////////////////////////////
+
+struct rwlock*
+rwlock_create(const char *name){
+	struct rwlock *rw;
+
+	rw = kmalloc(sizeof(*rw));
+	if (rw == NULL) {
+		return NULL;
+	}
+
+	rw->rwlock_name = kstrdup(name);
+	if (rw->rwlock_name==NULL) {
+		kfree(rw);
+		return NULL;
+	}
+
+	// add stuff here as needed
+        rw->rw_wchan=wchan_create(rw->rwlock_name);
+        if(rw->rw_wchan == NULL){
+        	kfree(rw->rwlock_name);
+                kfree(rw);
+                return NULL;
+        }
+
+	return rw;	
+}
+
+void
+rwlock_destroy(struct rwlock *rw){
+
+	(void)rw;
+}
+void
+rwlock_acquire_read(struct rwlock *rw){
+
+	(void)rw;
+}
+
+void
+rwlock_release_read(struct rwlock *rw){
+
+	(void)rw;
+}
+
+void
+rwlock_acquire_write(struct rwlock *rw){
+
+	(void)rw;
+}
+
+void
+rwlock_release_write(struct rwlock *rw){
+
+	(void)rw;
+}
+
+
+
+
+
+
+
+
+

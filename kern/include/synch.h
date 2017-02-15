@@ -158,6 +158,7 @@ void cv_broadcast(struct cv *cv, struct lock *lock); //will awake all threads un
 struct rwlock {
         char *rwlock_name;
         // add what you need here
+        struct wchan *rw_wchan;
         // (don't forget to mark things volatile as needed)
 };
 

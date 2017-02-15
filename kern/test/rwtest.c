@@ -19,8 +19,9 @@
 int rwtest(int nargs, char **args) {
 	(void)nargs;
 	(void)args;
+        
 
-	kprintf_n("rwt1 unimplemented\n");
+//	kprintf_n("rwt1 unimplemented\n");
 	success(TEST161_FAIL, SECRET, "rwt1");
 
 	return 0;
@@ -30,9 +31,9 @@ int rwtest2(int nargs, char **args) {
 	(void)nargs;
 	(void)args;
 
-	kprintf_n("rwt2 unimplemented\n");
+//	kprintf_n("rwt2 unimplemented\n");
 	success(TEST161_FAIL, SECRET, "rwt2");
-
+        
 	return 0;
 }
 
