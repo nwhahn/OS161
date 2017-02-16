@@ -42,14 +42,68 @@ static bool test_status = TEST161_FAIL;
 
 
 //}
+static 
+void
+readthread(void *junk, unsigned long num)
+{
+	(void) junk;
+	(void) num;
+//	int i;
+	
+	rwlock_acquire_read(testrw);
+       
+
+
+}
 int rwtest(int nargs, char **args) {
 	(void)nargs;
 	(void)args;
         
+        int i,result;
+
+	kprintf_n("Starting rwt1...\n");
+	for (i=0;i<CREATELOOPS;i++){        
+		kprintf_t(".");
+        //        kprintf_n("fa");
+		testrw = rwlock_create("testlock");
+        //        kprintf_n("tests");
+		if (testrw == NULL) {
+			panic("lt1: lock_create failed\n");
+		}
+		donesem = sem_create("donesem", 0);
+		if (donesem == NULL) {
+			panic("lt1: sem_create failed\n");
+		}
+		if (i != CREATELOOPS - 1) {
+			rwlock_destroy(testrw);
+			sem_destroy(donesem);
+		}
+	}
+        kprintf_n("amazing\n");
+	spinlock_init(&status_lock);
+	test_status= TEST161_SUCCESS;
+
+	for(i=0;i<NTHREADS;i++){
+		kprintf_t(".");
+		result = thread_fork("readtest",NULL,readthread,NULL,i);
+		if(result){
+			panic("rwt1:thread_fork failed");
+		}
+
+	}
+	rwlock_acquire_write(testrw);
         
+
+	rwlock_release_read(testrw);
+
+	rwlock_destroy(testrw);
+	sem_destroy(donesem);
+	testrw=NULL;
+	donesem= NULL;
+	kprintf_n("Yo\n");
         
 //rwlock_acquire_read,rwlock_release_read,rwlock_acquire_write,rwlock_release_write         
-
+        
  
         
 	kprintf_n("rwt1 unimplemented\n");
@@ -124,7 +178,7 @@ readtestthread(void *junk, unsigned long num)
 
 fail:
 	rwlock_release_read(testrw);
-        kprintf_n("fail1\n");
+//        kprintf_n("fail1\n");
 
 
 }

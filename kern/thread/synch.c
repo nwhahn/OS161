@@ -430,7 +430,7 @@ void
 rwlock_destroy(struct rwlock *rw){
         KASSERT(rw != NULL);
         
-        if(rw->write_lock==1){
+        if(rw->write_lock==1 || rw->read_locks>0){
         	panic("rwlock_destroy cannot be used when write being used");
         }
         spinlock_cleanup(&rw->rw_lock);
@@ -464,7 +464,12 @@ void
 rwlock_release_read(struct rwlock *rw){
 	KASSERT(rw!=NULL);
 	
+	if(rw->read_locks==0){
+		panic("rwlock_release_read: nothing to release");
+
+	}
 	spinlock_acquire(&rw->rw_lock);
+//	KASSERT(rw->read_locks>0);
         rw->read_locks--;
 //      wchan_wakeone(rw_wchan,&rw->rw_lock);	
 	spinlock_release(&rw->rw_lock);	
@@ -476,7 +481,9 @@ rwlock_acquire_write(struct rwlock *rw){
         KASSERT(rw!=NULL);
 	
         spinlock_acquire(&rw->rw_lock);
-	wchan_sleep(rw->rw_wchan,&rw->rw_lock);
+        while(rw->write_lock==1 && rw->read_locks>0){
+		wchan_sleep(rw->rw_wchan,&rw->rw_lock);
+	}
  
 	rw->write_lock=1;	
 	
@@ -487,11 +494,15 @@ rwlock_acquire_write(struct rwlock *rw){
 void
 rwlock_release_write(struct rwlock *rw){
         KASSERT(rw!=NULL);
-	
+		
+	if(rw->write_lock==0){
+		panic("rwlock_release_write:nothing to release");
+	}
+
 	spinlock_acquire(&rw->rw_lock);
 	rw->write_lock=0;
 
-	wchan_wakeall(rw->rw_wchan,&rw->rw_lock);
+	wchan_wakeone(rw->rw_wchan,&rw->rw_lock);
 	spinlock_release(&rw->rw_lock);
 	(void)rw;
 }
