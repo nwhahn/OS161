@@ -157,46 +157,46 @@ gostraight(uint32_t direction, uint32_t index)
 
 	if(direction==0){
 		lock_acquire(lock_0);
-		lock_acquire(lock_1);
+		lock_acquire(lock_3);
 		inQuadrant(0,index);
-		inQuadrant(1,index);
+		inQuadrant(3,index);
 		lock_release(lock_0);
 		leaveIntersection(index);	
-		lock_release(lock_1);	
+		lock_release(lock_3);	
 				
 	}
 	else if(direction==1){
 	
 		lock_acquire(lock_1);
-		lock_acquire(lock_2);
+		lock_acquire(lock_0);
 		inQuadrant(1,index);
-		inQuadrant(2,index);
+		inQuadrant(0,index);
 		lock_release(lock_1);
 		leaveIntersection(index);	
-		lock_release(lock_2);	
+		lock_release(lock_0);	
 		
 	}
 	else if(direction==2){
 
 		lock_acquire(lock_2);
-		lock_acquire(lock_3);
+		lock_acquire(lock_1);
 		inQuadrant(2,index);
-		inQuadrant(3,index);
+		inQuadrant(1,index);
 		lock_release(lock_2);
 		leaveIntersection(index);	
-		lock_release(lock_3);	
+		lock_release(lock_1);	
 		
 
 	}
 	else if(direction==3){
 			
 		lock_acquire(lock_3);
-		lock_acquire(lock_0);
+		lock_acquire(lock_2);
 		inQuadrant(3,index);
-		inQuadrant(0,index);
+		inQuadrant(2,index);
 		lock_release(lock_3);
 		leaveIntersection(index);	
-		lock_release(lock_0);	
+		lock_release(lock_2);	
 	}
 	return;
 }
@@ -211,13 +211,13 @@ turnleft(uint32_t direction, uint32_t index)
 	
 	if(direction==0){
 		lock_acquire(lock_0);
-		lock_acquire(lock_1);
+		lock_acquire(lock_3);
 		lock_acquire(lock_2);
 		inQuadrant(0,index);
-		inQuadrant(1,index);
+		inQuadrant(3,index);
 		lock_release(lock_0);
 		inQuadrant(2,index);
-		lock_release(lock_1);
+		lock_release(lock_3);
 		leaveIntersection(index);	
 		lock_release(lock_2);	
 				
@@ -225,25 +225,25 @@ turnleft(uint32_t direction, uint32_t index)
 	else if(direction==1){
 		
 		lock_acquire(lock_1);
-		lock_acquire(lock_2);
+		lock_acquire(lock_0);
 		lock_acquire(lock_3);
 		inQuadrant(1,index);
-		inQuadrant(2,index);
+		inQuadrant(0,index);
 		lock_release(lock_1);
 		inQuadrant(3,index);
-		lock_release(lock_2);
+		lock_release(lock_0);
 		leaveIntersection(index);	
 		lock_release(lock_3);	
 	}
 	else if(direction==2){
 		lock_acquire(lock_2);
-		lock_acquire(lock_3);
+		lock_acquire(lock_1);
 		lock_acquire(lock_0);
 		inQuadrant(2,index);
-		inQuadrant(3,index);
+		inQuadrant(1,index);
 		lock_release(lock_2);
 		inQuadrant(0,index);
-		lock_release(lock_3);
+		lock_release(lock_1);
 		leaveIntersection(index);	
 		lock_release(lock_0);	
 
@@ -251,13 +251,13 @@ turnleft(uint32_t direction, uint32_t index)
 	else if (direction==3){
 		
 		lock_acquire(lock_3);
-		lock_acquire(lock_0);
+		lock_acquire(lock_2);
 		lock_acquire(lock_1);
 		inQuadrant(3,index);
-		inQuadrant(0,index);
+		inQuadrant(2,index);
 		lock_release(lock_3);
 		inQuadrant(1,index);
-		lock_release(lock_0);
+		lock_release(lock_2);
 		leaveIntersection(index);	
 		lock_release(lock_1);	
 	}
