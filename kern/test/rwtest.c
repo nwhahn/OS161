@@ -26,6 +26,7 @@ static struct semaphore *donesem = NULL;
 
 struct spinlock status_lock;
 static bool test_status = TEST161_FAIL;
+static bool x= 0;
 /*
  * Use these stubs to test your reader-writer locks.
  */
@@ -42,6 +43,7 @@ static bool test_status = TEST161_FAIL;
 
 
 //}
+
 static 
 void
 readthread(void *junk, unsigned long num)
@@ -51,9 +53,11 @@ readthread(void *junk, unsigned long num)
 //	int i;
 	
 	rwlock_acquire_read(testrw);
-       
-
-
+      	while(x==0){
+		num++;
+	} 
+	rwlock_release_read(testrw);
+	
 }
 int rwtest(int nargs, char **args) {
 	(void)nargs;
@@ -92,10 +96,14 @@ int rwtest(int nargs, char **args) {
 
 	}
 	rwlock_acquire_write(testrw);
-        
-
-	rwlock_release_read(testrw);
-
+       /*	for(i=0;i<NTHREADS;i++){
+		kprintf_n("%d\n",i);	
+		rwlock_release_read(testrw);
+	
+	}*/ 
+	x=1;
+	rwlock_release_write(testrw);
+	
 	rwlock_destroy(testrw);
 	sem_destroy(donesem);
 	testrw=NULL;
@@ -107,7 +115,7 @@ int rwtest(int nargs, char **args) {
  
         
 	kprintf_n("rwt1 unimplemented\n");
-	success(TEST161_FAIL, SECRET, "rwt1");
+	success(test_status, SECRET, "rwt1");
 
 	return 0;
 }

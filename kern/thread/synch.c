@@ -430,9 +430,12 @@ void
 rwlock_destroy(struct rwlock *rw){
         KASSERT(rw != NULL);
         
-        if(rw->write_lock==1 || rw->read_locks>0){
+        if(rw->write_lock==1){
         	panic("rwlock_destroy cannot be used when write being used");
         }
+	if(rw->read_locks>0){
+		panic("rwlock_destroy cannot be used when read being used");
+	}
         spinlock_cleanup(&rw->rw_lock);
         wchan_destroy(rw->rw_wchan);
         
@@ -469,6 +472,7 @@ rwlock_release_read(struct rwlock *rw){
 
 	}
 	spinlock_acquire(&rw->rw_lock);
+	wchan_wakeone(rw->rw_wchan,&rw->rw_lock);
 //	KASSERT(rw->read_locks>0);
         rw->read_locks--;
 //      wchan_wakeone(rw_wchan,&rw->rw_lock);	
