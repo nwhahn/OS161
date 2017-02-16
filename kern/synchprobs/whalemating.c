@@ -45,6 +45,9 @@
  */
 
 void whalemating_init() {
+
+	
+
 	return;
 }
 
@@ -87,5 +90,7 @@ matchmaker(uint32_t index)
 	 * Implement this function by calling matchmaker_start and matchmaker_end
 	 * when appropriate.
 	 */
+
+
 	return;
 }
