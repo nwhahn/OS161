@@ -341,7 +341,7 @@ cv_wait(struct cv *cv, struct lock *lock)
         KASSERT(lock!=NULL);
         KASSERT(cv!=NULL);
         if(lock_do_i_hold(lock)==false){
-        	panic("cv wait failure: thread does not hold lock");
+       		panic("cv wait failure: thread does not hold lock");
 	}
        // lock->lock_wchan=cv->cv_wchan;
        // lock_release(lock);
@@ -460,7 +460,7 @@ rwlock_acquire_read(struct rwlock *rw){
         KASSERT(rw->read_locks>0);	
         spinlock_release(&rw->rw_lock);
  
-	(void)rw;
+//	(void)rw;
 }
 
 void
@@ -477,7 +477,7 @@ rwlock_release_read(struct rwlock *rw){
         rw->read_locks--;
 //      wchan_wakeone(rw_wchan,&rw->rw_lock);	
 	spinlock_release(&rw->rw_lock);	
-	(void)rw;
+	//(void)rw;
 }
 
 void

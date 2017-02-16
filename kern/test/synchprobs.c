@@ -224,9 +224,10 @@ matchmaker_end(uint32_t index) {
 	check_role(index, MATCHMAKER);
 	match_count++;
 	matchmaker_end_count++;
+	kprintf_n("%d\n",concurrent_matchmakers);
 	concurrent_matchmakers--;
 	kprintf_n("%s ending\n", curthread->t_name);
-	kprintf_t(".");
+        kprintf_t(".");
 	lock_release(testlock);
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
@@ -350,7 +351,7 @@ whalemating(int nargs, char **args) {
 		P(endsem);
 		total_count--;
 	}
-
+	kprintf_n("reached here");
 	/* Make sure nothing else is happening... */
 	loop_status = TEST161_SUCCESS;
 	for (i = 0; i < CHECK_TIMES && loop_status == TEST161_SUCCESS; i++) {
@@ -367,6 +368,7 @@ whalemating(int nargs, char **args) {
 	if (failif((loop_status == TEST161_FAIL), "failed: uncoordinated matchmaking is occurring")) {
 		goto done;
 	}
+	kprintf_n("reached here");
 
 	/*
 	 * Release the rest of the matchmakers and wait for everyone to finish.

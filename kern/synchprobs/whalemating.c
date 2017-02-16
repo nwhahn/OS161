@@ -43,11 +43,31 @@
 /*
  * Called by the driver during initialization.
  */
+//static struct cv *match_cv=NULL;
+static struct cv *male_cv=NULL;
+static struct cv *female_cv=NULL;
+//static struct lock *whale_lock=NULL;
+static struct lock *male_lock=NULL;
+static struct lock *female_lock= NULL;
+static struct lock *match_lock=NULL;
+//static int males=0;
+//static int females=0;
+static struct semaphore *male_sem = NULL;
+static struct semaphore *female_sem=NULL;
+
+
 
 void whalemating_init() {
+	male_cv=cv_create("whale cv");
+	female_cv=cv_create("whale cv");
+//	match_cv=cv_create("whale cv");
+//	whale_lock=lock_create("whale lock");	
+	male_lock=lock_create("whale lock");
+	female_lock=lock_create("whale lock");		
+	match_lock=lock_create("whale lock");
 
-	
-
+	male_sem=sem_create("whale sem",0);
+	female_sem=sem_create("whale sem",0);
 	return;
 }
 
@@ -57,6 +77,24 @@ void whalemating_init() {
 
 void
 whalemating_cleanup() {
+	cv_destroy(male_cv);
+	cv_destroy(female_cv);
+//	cv_destroy(match_cv);
+//	lock_destroy(whale_lock);	
+	lock_destroy(male_lock);
+	lock_destroy(female_lock);
+	lock_destroy(match_lock);
+
+	sem_destroy(male_sem);
+	sem_destroy(female_sem);
+
+	male_cv=NULL;
+	female_cv=NULL;
+	male_lock=NULL;
+	female_lock=NULL;
+	match_lock=NULL;
+	male_sem=NULL;
+	female_sem=NULL;
 	return;
 }
 
@@ -68,9 +106,24 @@ male(uint32_t index)
 	 * Implement this function by calling male_start and male_end when
 	 * appropriate.
 	 */
+//	struct lock *male=NULL;
         male_start(index);
+//	male=lock_create("sa");
+//	males++;
+	V(male_sem);
+	lock_acquire(male_lock);
+	cv_wait(male_cv,male_lock);
+	lock_release(male_lock);
+//	panic("gets jegere");
+//	lock_destroy(male);
+	P(male_sem);
 
-  	male_end(index);      
+//	lock_acquire(match_lock);
+//	cv_signal(match_cv,match_lock);
+//	males--;
+  	male_end(index); 
+
+    	 
 	return;
 }
 
@@ -82,6 +135,19 @@ female(uint32_t index)
 	 * Implement this function by calling female_start and female_end when
 	 * appropriate.
 	 */
+	female_start(index);
+//	females++;
+  	V(female_sem);
+	lock_acquire(female_lock);      
+	cv_wait(female_cv,female_lock);
+	lock_release(female_lock);
+	P(female_sem);
+
+//	females--;	
+//	lock_acquire(match_lock);
+//	cv_signal(match_cv,match_lock);
+
+	female_end(index);
 	return;
 }
 
@@ -93,7 +159,32 @@ matchmaker(uint32_t index)
 	 * Implement this function by calling matchmaker_start and matchmaker_end
 	 * when appropriate.
 	 */
+	matchmaker_start(index);
+
+//	cv_wait(female_cv);
+//	while(male_sem->sem_count>0 && female_sem->sem_count>0){
+		lock_acquire(match_lock);
+		cv_signal(male_cv,match_lock);
+		lock_release(match_lock);
+//		lock_acquire(match_lock);
+//		cv_wait(match_cv,match_lock);
+	//	lock_release(match_lock);
+		
+//	panic("%d %d\n",male_sem->sem_count,female_sem->sem_count);		
+		lock_acquire(match_lock);
+		cv_signal(female_cv,match_lock);
+		lock_release(match_lock);
+//		lock_acquire(match_lock);
+//		cv_wait(match_cv,match_lock);
+	//	lock_release(match_lock);
+//	}					
+	
+//panic("%d %d\n",male_sem->sem_count,female_sem->sem_count);		
+	
+	matchmaker_end(index);
 
 	
+
+//	panic("%d %d\n",male_sem->sem_count,female_sem->sem_count);		
 	return;
 }
