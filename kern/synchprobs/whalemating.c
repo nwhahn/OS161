@@ -63,11 +63,14 @@ whalemating_cleanup() {
 void
 male(uint32_t index)
 {
-	(void)index;
+//	(void)index;
 	/*
 	 * Implement this function by calling male_start and male_end when
 	 * appropriate.
 	 */
+        male_start(index);
+
+  	male_end(index);      
 	return;
 }
 
@@ -91,6 +94,6 @@ matchmaker(uint32_t index)
 	 * when appropriate.
 	 */
 
-
+	
 	return;
 }

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+cd conf
+./config DUMBVM
+cd ../
+cd compile/DUMBVM
+bmake clean
+bmake depend
+bmake
+bmake install
+cd ../../
+
