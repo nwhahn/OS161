@@ -660,14 +660,14 @@ int stoplight(int nargs, char **args) {
 			panic("sp2: thread_fork failed: (%s)\n", strerror(err));
 		}
 	}
-
+//	kprintf_n("reached this\n");
 	for (i = 0; i < NCARS; i++) {
 		kprintf_t(".");
 		P(endsem);
 	}
 
 	stoplight_cleanup();
-
+	
 	for (i = 0; i < NCARS; i++) {
 		passed += car_locations[i] == PASSED_CAR ? 1 : 0;
 	}
@@ -679,7 +679,7 @@ int stoplight(int nargs, char **args) {
 	lock_destroy(testlock);
 	cv_destroy(startcv);
 	sem_destroy(endsem);
-
+	
 	kprintf_t("\n");
 	if (test_status != TEST161_SUCCESS) {
 		secprintf(SECRET, test_message, "sp2");
