@@ -62,7 +62,6 @@
  * Your solutions below should call the inQuadrant() and leaveIntersection()
  * functions in synchprobs.c to record their progress.
  */
-
 #include <types.h>
 #include <lib.h>
 #include <thread.h>
@@ -73,7 +72,7 @@ static struct lock *lock_0= NULL;
 static struct lock *lock_1= NULL;
 static struct lock *lock_2= NULL;
 static struct lock *lock_3= NULL;
-
+static struct lock *man_lock= NULL;
 /*
  * Called by the driver during initialization.
  */
@@ -84,7 +83,7 @@ stoplight_init() {
 	lock_1=lock_create("Quadrant 1");
 	lock_2=lock_create("Quadrant 2");
 	lock_3=lock_create("Quadrant 3");
-
+	man_lock=lock_create("For maneuvers");
 
 	return;
 }
@@ -98,11 +97,13 @@ void stoplight_cleanup() {
 	lock_destroy(lock_1);
 	lock_destroy(lock_2);
 	lock_destroy(lock_3);
+	lock_destroy(man_lock);
 
 	lock_0=NULL;
 	lock_1=NULL;
 	lock_2=NULL;
-	lock_3=NULL;	
+	lock_3=NULL;
+	man_lock=NULL;
 	return;
 }
 
@@ -156,8 +157,10 @@ gostraight(uint32_t direction, uint32_t index)
 	 */
 
 	if(direction==0){
+		lock_acquire(man_lock);
 		lock_acquire(lock_0);
 		lock_acquire(lock_3);
+		lock_release(man_lock);
 		inQuadrant(0,index);
 		inQuadrant(3,index);
 		lock_release(lock_0);
@@ -166,9 +169,10 @@ gostraight(uint32_t direction, uint32_t index)
 				
 	}
 	else if(direction==1){
-	
+		lock_acquire(man_lock);
 		lock_acquire(lock_1);
 		lock_acquire(lock_0);
+		lock_release(man_lock);
 		inQuadrant(1,index);
 		inQuadrant(0,index);
 		lock_release(lock_1);
@@ -177,9 +181,10 @@ gostraight(uint32_t direction, uint32_t index)
 		
 	}
 	else if(direction==2){
-
+		lock_acquire(man_lock);
 		lock_acquire(lock_2);
 		lock_acquire(lock_1);
+		lock_release(man_lock);
 		inQuadrant(2,index);
 		inQuadrant(1,index);
 		lock_release(lock_2);
@@ -189,9 +194,10 @@ gostraight(uint32_t direction, uint32_t index)
 
 	}
 	else if(direction==3){
-			
+		lock_acquire(man_lock);	
 		lock_acquire(lock_3);
 		lock_acquire(lock_2);
+		lock_release(man_lock);
 		inQuadrant(3,index);
 		inQuadrant(2,index);
 		lock_release(lock_3);
@@ -210,9 +216,11 @@ turnleft(uint32_t direction, uint32_t index)
 	 */
 	
 	if(direction==0){
+		lock_acquire(man_lock);
 		lock_acquire(lock_0);
 		lock_acquire(lock_3);
 		lock_acquire(lock_2);
+		lock_release(man_lock);
 		inQuadrant(0,index);
 		inQuadrant(3,index);
 		lock_release(lock_0);
@@ -223,10 +231,11 @@ turnleft(uint32_t direction, uint32_t index)
 				
 	}
 	else if(direction==1){
-		
+		lock_acquire(man_lock);
 		lock_acquire(lock_1);
 		lock_acquire(lock_0);
 		lock_acquire(lock_3);
+		lock_release(man_lock);
 		inQuadrant(1,index);
 		inQuadrant(0,index);
 		lock_release(lock_1);
@@ -236,9 +245,11 @@ turnleft(uint32_t direction, uint32_t index)
 		lock_release(lock_3);	
 	}
 	else if(direction==2){
+		lock_acquire(man_lock);
 		lock_acquire(lock_2);
 		lock_acquire(lock_1);
 		lock_acquire(lock_0);
+		lock_release(man_lock);
 		inQuadrant(2,index);
 		inQuadrant(1,index);
 		lock_release(lock_2);
@@ -249,10 +260,11 @@ turnleft(uint32_t direction, uint32_t index)
 
 	}
 	else if (direction==3){
-		
+		lock_acquire(man_lock);
 		lock_acquire(lock_3);
 		lock_acquire(lock_2);
 		lock_acquire(lock_1);
+		lock_release(man_lock);
 		inQuadrant(3,index);
 		inQuadrant(2,index);
 		lock_release(lock_3);
