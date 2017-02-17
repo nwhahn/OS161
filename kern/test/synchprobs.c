@@ -472,7 +472,8 @@ move(uint32_t index) {
 static
 void
 turnright_wrapper(void *index, unsigned long direction)
-{
+{	
+	kprintf_n("1\n");
 	random_yielder(4);
 	lock_acquire(testlock);
 	initialize_car_thread((uint32_t)index, (uint32_t)direction, TURN_RIGHT);
@@ -485,7 +486,7 @@ turnright_wrapper(void *index, unsigned long direction)
 	lock_release(testlock);
 	turnright((uint32_t)direction, (uint32_t)index);
 	V(endsem);
-
+	kprintf_n("2\n");
 	return;
 }
 static
@@ -537,22 +538,22 @@ inQuadrant(int quadrant, uint32_t index) {
 	int target_quadrant = car_directions[index];
 	switch (car_turn_times[index]) {
 		case 0:
-			failif((pre_quadrant != UNKNOWN_CAR), "failed: invalid turn");
+			failif((pre_quadrant != UNKNOWN_CAR), "1failed: invalid turn");
 			break;
 		case 1:
-			failif((pre_quadrant != target_quadrant), "failed: invalid turn");
+			failif((pre_quadrant != target_quadrant), "2failed: invalid turn");
 			target_quadrant = (target_quadrant + NUM_QUADRANTS - 1) % NUM_QUADRANTS;
 			break;
 		case 2:
 			target_quadrant = (target_quadrant + NUM_QUADRANTS - 1) % NUM_QUADRANTS;
-			failif((pre_quadrant != target_quadrant), "failed: invalid turn");
+			failif((pre_quadrant != target_quadrant), "3failed: invalid turn");
 			target_quadrant = (target_quadrant + NUM_QUADRANTS - 1) % NUM_QUADRANTS;
 			break;
 		default:
-			failif(true, "failed: invalid turn");
+			failif(true, "4444failed: invalid turn");
 			break;
 	}
-	failif((quadrant != target_quadrant), "failed: invalid turn");
+	failif((quadrant != target_quadrant), "5failed: invalid turn");
 	car_turn_times[index]++;
 
 	failif((quadrant_array[quadrant] > 0), "failed: collision");
@@ -637,8 +638,8 @@ int stoplight(int nargs, char **args) {
 	for (i = 0; i < NCARS; i++) {
 		kprintf_t(".");
 
-		direction = random() % 4;
-		turn = random() % 3;
+		direction = random() %4;
+		turn =random() % 3;
 
 		snprintf(name, sizeof(name), "Car Thread %d", i);
 
@@ -660,14 +661,14 @@ int stoplight(int nargs, char **args) {
 			panic("sp2: thread_fork failed: (%s)\n", strerror(err));
 		}
 	}
-
+//	kprintf_n("reached this\n");
 	for (i = 0; i < NCARS; i++) {
 		kprintf_t(".");
 		P(endsem);
 	}
 
 	stoplight_cleanup();
-
+	
 	for (i = 0; i < NCARS; i++) {
 		passed += car_locations[i] == PASSED_CAR ? 1 : 0;
 	}
@@ -679,7 +680,7 @@ int stoplight(int nargs, char **args) {
 	lock_destroy(testlock);
 	cv_destroy(startcv);
 	sem_destroy(endsem);
-
+	
 	kprintf_t("\n");
 	if (test_status != TEST161_SUCCESS) {
 		secprintf(SECRET, test_message, "sp2");
