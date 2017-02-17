@@ -422,13 +422,16 @@ rwlock_create(const char *name){
         spinlock_init(&rw->rw_lock);
         rw->write_lock=0;
         rw->read_locks=0;
-        
+	rw->read_lock_num=0;
+	rw->read_num_low=0;        
 	return rw;	
 }
 
 void
 rwlock_destroy(struct rwlock *rw){
         KASSERT(rw != NULL);
+		
+
         
         if(rw->write_lock==1){
         	panic("rwlock_destroy cannot be used when write being used");
@@ -448,12 +451,18 @@ rwlock_acquire_read(struct rwlock *rw){
         KASSERT(rw!= NULL);
 	spinlock_acquire(&rw->rw_lock);
 
-	while(rw->write_lock == 1){
+	int x=rw->read_lock_num;
+	rw->read_lock_num++;
+
+	while(rw->write_lock == 1 || x!=rw->read_num_low){
 	//sleep
 		wchan_sleep(rw->rw_wchan,&rw->rw_lock);	
+		wchan_wakeone(rw->rw_wchan,&rw->rw_lock);
 	}
 	
-	
+	rw->read_num_low++;
+
+		
 	
         KASSERT(rw->write_lock==0);
         rw->read_locks++;
@@ -472,10 +481,13 @@ rwlock_release_read(struct rwlock *rw){
 
 	}
 	spinlock_acquire(&rw->rw_lock);
-	wchan_wakeone(rw->rw_wchan,&rw->rw_lock);
+//	wchan_wakeone(rw->rw_wchan,&rw->rw_lock);
 //	KASSERT(rw->read_locks>0);
         rw->read_locks--;
-//      wchan_wakeone(rw_wchan,&rw->rw_lock);	
+//	if(rw->read_locks==0 && wchan_isempty(rw->rw_wchan,&rw->rw_lock)==0){
+
+		wchan_wakeone(rw->rw_wchan,&rw->rw_lock);	
+//	}
 	spinlock_release(&rw->rw_lock);	
 	//(void)rw;
 }
@@ -487,6 +499,7 @@ rwlock_acquire_write(struct rwlock *rw){
         spinlock_acquire(&rw->rw_lock);
         while(rw->write_lock==1 && rw->read_locks>0){
 		wchan_sleep(rw->rw_wchan,&rw->rw_lock);
+
 	}
  
 	rw->write_lock=1;	

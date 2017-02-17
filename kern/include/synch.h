@@ -162,6 +162,8 @@ struct rwlock {
         struct spinlock rw_lock;
         volatile bool write_lock;
         volatile int read_locks;
+	int read_lock_num;
+	int read_num_low;
         // (don't forget to mark things volatile as needed)
 };
 

@@ -23,10 +23,11 @@ static volatile unsigned long testval3;
 //static struct semaphore *testsem = NULL;
 static struct rwlock *testrw = NULL;
 static struct semaphore *donesem = NULL;
-
+static struct cv *testcv =NULL;
+static struct lock *testlock=NULL;
 struct spinlock status_lock;
 static bool test_status = TEST161_FAIL;
-static bool x= 0;
+//static bool x= 0;
 /*
  * Use these stubs to test your reader-writer locks.
  */
@@ -53,9 +54,10 @@ readthread(void *junk, unsigned long num)
 //	int i;
 	
 	rwlock_acquire_read(testrw);
-      	while(x==0){
-		num++;
-	} 
+ 	lock_acquire(testlock); 
+	cv_wait(testcv,testlock);
+	lock_release(testlock);
+	 
 	rwlock_release_read(testrw);
 	
 }
@@ -71,6 +73,8 @@ int rwtest(int nargs, char **args) {
         //        kprintf_n("fa");
 		testrw = rwlock_create("testlock");
         //        kprintf_n("tests");
+		testcv= cv_create("testcv");
+		testlock= lock_create("testlock");
 		if (testrw == NULL) {
 			panic("lt1: lock_create failed\n");
 		}
@@ -85,8 +89,9 @@ int rwtest(int nargs, char **args) {
 	}
         kprintf_n("amazing\n");
 	spinlock_init(&status_lock);
-	test_status= TEST161_SUCCESS;
 
+	test_status= TEST161_SUCCESS;
+//	cv_create("");
 	for(i=0;i<NTHREADS;i++){
 		kprintf_t(".");
 		result = thread_fork("readtest",NULL,readthread,NULL,i);
@@ -101,10 +106,22 @@ int rwtest(int nargs, char **args) {
 		rwlock_release_read(testrw);
 	
 	}*/ 
-	x=1;
+//	for(i=0;i<NTHREADS;i++){
+	lock_acquire(testlock);
+	//kprintf_n("gets here");
+	cv_broadcast(testcv,testlock);
+	lock_release(testlock);
+
+	kprintf_n("%d %d\n",testrw->read_locks,testrw->write_lock);	
+//	}
 	rwlock_release_write(testrw);
 	
+//	kprintf_n("%d\n",testrw->read_locks);
+//	kprintf_n("%d\n",testrw->write_lock);	
+	
 	rwlock_destroy(testrw);
+	cv_destroy(testcv);
+	lock_destroy(testlock);
 	sem_destroy(donesem);
 	testrw=NULL;
 	donesem= NULL;
@@ -243,7 +260,35 @@ int rwtest2(int nargs, char **args) {
 int rwtest3(int nargs, char **args) {
 	(void)nargs;
 	(void)args;
+	int i;
+	for(i=0;i<CREATELOOPS;i++){
+		kprintf_t(".");
+		testrw=rwlock_create("rwlock");
+		
+		if(testrw==NULL){
+			panic("rwt1: rwlock_create failed\n");
 
+		
+		}
+		donesem = sem_create("donesem",0);
+		if(donesem==NULL){
+			panic("rwt2: sem_create failed\n");
+
+		}
+		if(i!= CREATELOOPS -1){
+			rwlock_destroy(testrw);
+			sem_destroy(donesem);	
+		}
+			
+	}
+	//testrw = rwlock_create("dank memes");	
+	kprintf_n("reached here\n");			
+	spinlock_init(&status_lock);
+	test_status = TEST161_SUCCESS;
+
+	rwlock_destroy(testrw);
+	sem_destroy(donesem);	
+	
 	kprintf_n("rwt3 unimplemented\n");
 	success(TEST161_FAIL, SECRET, "rwt3");
 
