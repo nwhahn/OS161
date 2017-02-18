@@ -501,11 +501,11 @@ rwlock_acquire_write(struct rwlock *rw){
 		wchan_sleep(rw->rw_wchan,&rw->rw_lock);
 
 	}
- 
+ 	
 	rw->write_lock=1;	
 	
 	spinlock_release(&rw->rw_lock);		 
-	(void)rw;
+//	(void)rw;
 }
 
 void
@@ -521,7 +521,7 @@ rwlock_release_write(struct rwlock *rw){
 
 	wchan_wakeone(rw->rw_wchan,&rw->rw_lock);
 	spinlock_release(&rw->rw_lock);
-	(void)rw;
+//	(void)rw;
 }
 
 
