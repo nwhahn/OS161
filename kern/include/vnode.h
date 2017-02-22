@@ -184,14 +184,14 @@ struct vnode_ops {
 	int (*vop_reclaim)(struct vnode *vnode);
 
 
-	int (*vop_read)(struct vnode *file, struct uio *uio);
+	int (*vop_read)(struct vnode *file, struct uio *uio);          //use for asst2.1
 	int (*vop_readlink)(struct vnode *link, struct uio *uio);
 	int (*vop_getdirentry)(struct vnode *dir, struct uio *uio);
-	int (*vop_write)(struct vnode *file, struct uio *uio);
+	int (*vop_write)(struct vnode *file, struct uio *uio);         //use for asst2.1
 	int (*vop_ioctl)(struct vnode *object, int op, userptr_t data);
 	int (*vop_stat)(struct vnode *object, struct stat *statbuf);
 	int (*vop_gettype)(struct vnode *object, mode_t *result);
-	bool (*vop_isseekable)(struct vnode *object);
+	bool (*vop_isseekable)(struct vnode *object);                   //use for asst2.1
 	int (*vop_fsync)(struct vnode *object);
 	int (*vop_mmap)(struct vnode *file /* add stuff */);
 	int (*vop_truncate)(struct vnode *file, off_t len);

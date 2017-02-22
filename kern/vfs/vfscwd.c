@@ -123,7 +123,7 @@ vfs_clearcurdir(void)
 int
 vfs_chdir(char *path)
 {
-	struct vnode *vn;
+	struct vnode *vn;   //defined this here
 	int result;
 
 	result = vfs_lookup(path, &vn);
@@ -140,7 +140,7 @@ vfs_chdir(char *path)
  * Use VOP_NAMEFILE to get the pathname and FSOP_GETVOLNAME to get the
  * volume name.
  */
-int
+int				//defined this here
 vfs_getcwd(struct uio *uio)
 {
 	struct vnode *cwd;

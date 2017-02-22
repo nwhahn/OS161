@@ -27,36 +27,39 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _SYSCALL_H_
-#define _SYSCALL_H_
-
-
-#include <cdefs.h> /* for __DEAD */
-struct trapframe; /* from <machine/trapframe.h> */
-
 /*
- * The system call dispatcher.
+ * rmtest.c
+ *
+ * 	Tests file system synchronization by deleting an open file and
+ * 	then attempting to read it.
+ *
+ * This should run correctly when the file system assignment is complete.
  */
 
-void syscall(struct trapframe *tf);
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <err.h>
+#include <errno.h>
 
-/*
- * Support functions.
- */
+#include <test161/test161.h>
 
-/* Helper for fork(). You write this. */
-void enter_forked_process(struct trapframe *tf);
+// 23 Mar 2012 : GWA : BUFFER_COUNT must be even.
 
-/* Enter user mode. Does not return. */
-__DEAD void enter_new_process(int argc, userptr_t argv, userptr_t env,
-		       vaddr_t stackptr, vaddr_t entrypoint);
+#define BUFFER_COUNT 128
+#define BUFFER_SIZE 128
 
+int
+main(int argc, char **argv)
+{
 
-/*
- * Prototypes for IN-KERNEL entry points for system call implementations.
- */
+	// 23 Mar 2012 : GWA : Assume argument passing is *not* supported.
 
-int sys_reboot(int code);
-int sys___time(userptr_t user_seconds, userptr_t user_nanoseconds);
-ssize_t write(int fd, const void *buf, size_t buflen);
-#endif /* _SYSCALL_H_ */
+	(void) argc;
+	(void) argv;
+
+	printf("Hello world\n");
+
+	return 0;
+}

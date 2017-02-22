@@ -101,18 +101,18 @@ int vfs_lookparent(char *path, struct vnode **result,
  *                 (See vfspath.c for a discussion of why.)
  */
 
-int vfs_open(char *path, int openflags, mode_t mode, struct vnode **ret);
-void vfs_close(struct vnode *vn);
+int vfs_open(char *path, int openflags, mode_t mode, struct vnode **ret);    //helpful
+void vfs_close(struct vnode *vn);						//helpful
 int vfs_readlink(char *path, struct uio *data);
 int vfs_symlink(const char *contents, char *path);
 int vfs_mkdir(char *path, mode_t mode);
 int vfs_link(char *oldpath, char *newpath);
-int vfs_remove(char *path);
+int vfs_remove(char *path);									
 int vfs_rmdir(char *path);
 int vfs_rename(char *oldpath, char *newpath);
 
-int vfs_chdir(char *path);
-int vfs_getcwd(struct uio *buf);
+int vfs_chdir(char *path);                                                     //helpful
+int vfs_getcwd(struct uio *buf);                                              //helpful
 
 /*
  * Misc
