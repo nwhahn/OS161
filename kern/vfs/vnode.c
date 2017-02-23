@@ -176,3 +176,4 @@ vnode_check(struct vnode *v, const char *opstr)
 	spinlock_release(&v->vn_countlock);
 	/*vfs_biglock_release();*/
 }
+
