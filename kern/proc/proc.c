@@ -48,7 +48,10 @@
 #include <current.h>
 #include <addrspace.h>
 #include <vnode.h>
+#include <filehandler.h>
 
+#define READONLY 0
+#define WRITEONLY 1
 /*
  * The process for the kernel; this holds all the kernel-only threads.
  */
@@ -81,9 +84,54 @@ proc_create(const char *name)
 
 	/* VFS fields */
 	proc->p_cwd = NULL;
+	
+	struct filehandler *STDIN=filehandler_create(READONLY,0,"STDIN");
+	proc->filetable[0]=kmalloc(sizeof(*STDIN));
+	struct filehandler *STDOUT = filehandler_create(WRITEONLY,0,"STDOUT");
 
+	proc->filetable[1]=kmalloc(sizeof(*STDOUT));
+	struct filehandler *STDERR = filehandler_create(WRITEONLY,0,"STDERR");
+		
+	proc->filetable[0]=kmalloc(sizeof(*STDERR));
+ 	if(STDIN==NULL||STDOUT==NULL||STDERR==NULL){
+		kfree(STDIN);
+		kfree(STDOUT);
+		kfree(STDERR);
+		kfree(proc);
+		return NULL;
+	}
+	
+	proc->filetable[0]=STDIN;
+	proc->filetable[1]=STDOUT;
+	proc->filetable[2]=STDERR;
+
+//	(void) STDIN;
 	return proc;
 }
+
+struct filehandler *
+filehandler_create(int rw,int initial_offset, const char *name)
+{
+        //filehandler=NULL;
+        struct filehandler *f;
+        f = kmalloc(sizeof(*f));
+
+        if(f==NULL) return NULL;
+        f->filehandler_name= kstrdup(name);
+        if( f->filehandler_name ==NULL){
+                kfree(f);
+                return NULL;
+	}
+        f->rw= rw;
+        if(f->rw >2){
+                kfree(f->filehandler_name);
+                kfree(f);
+                return NULL;
+        }
+        f->offset=initial_offset;
+	return f;
+}
+
 
 /*
  * Destroy a proc structure.
@@ -240,7 +288,7 @@ proc_addthread(struct proc *proc, struct thread *t)
 	spinlock_acquire(&proc->p_lock);
 	proc->p_numthreads++;
 	spinlock_release(&proc->p_lock);
-
+	//helpful?
 	spl = splhigh();
 	t->t_proc = proc;
 	splx(spl);

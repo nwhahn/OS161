@@ -147,7 +147,7 @@ uiomovezeros(size_t n, struct uio *uio)
 /*
  * Convenience function to initialize an iovec and uio for kernel I/O.
  */
-
+//helpful possibly
 void
 uio_kinit(struct iovec *iov, struct uio *u,
 	  void *kbuf, size_t len, off_t pos, enum uio_rw rw)

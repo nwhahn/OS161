@@ -37,7 +37,7 @@
  */
 
 #include <spinlock.h>
-
+#include <filehandler.h>
 struct addrspace;
 struct thread;
 struct vnode;
@@ -71,7 +71,23 @@ struct proc {
 	struct vnode *p_cwd;		/* current working directory */
 
 	/* add more material here as needed */
+ 	struct filehandler *filetable[3];		
+	//helpful
+
+			
 };
+
+struct filehandler{
+	char *filehandler_name;
+	int rw;
+	int offset;
+
+	struct vnode *fileobject;	
+
+
+};
+
+struct filehandler *filehandler_create(int rw,int offset, const char *name);
 
 /* This is the process structure for the kernel and for kernel-only threads. */
 extern struct proc *kproc;

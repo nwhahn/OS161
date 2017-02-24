@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009
+ * Copyright (c) 2013
  *	The President and Fellows of Harvard College.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,48 +27,27 @@
  * SUCH DAMAGE.
  */
 
+#ifndef _FILEHANDLER_H_
+#define _FILEHANDLER_H_
+
 /*
- * Basic vnode ops functions.
+ * Definition of a process.
+ *
+ * Note: curproc is defined by <current.h>.
  */
-#include <types.h>
-#include <kern/errno.h>
-#include <lib.h>
-#include <synch.h>
-#include <vfs.h>
+
+#include <spinlock.h>
 #include <vnode.h>
-
-
-int vop_read(struct vnode *file, struct uio *uio){
-	(void) file;
-	(void) uio;
-//	vfs_open(vfs_getcwd(uio), int openflags,mode_t mode,file);	
-//	uio->uio_resid=0;
-//	uio->uio_offset = uio->uio_resid + uio->uio_offset;
-
-//	vfs_close();
-	return 0;
-
-}
-
-
-int vop_write(struct vnode *file, struct uio *uio){
-	(void) file;
-	(void) uio;
-	uio->uio_resid=0;
-	uio->uio_offset = uio->uio_resid + uio->uio_offset;
-
+//struct filehandler{
+//	char *filehandler_name;			/* Name of this process */
+//	int rw;    //0=readonly 1=writeonly 2=readwrite
+//	int offset;
+	/* VFS */
+//	struct vnode *fileobject;		/* current working directory */
 
 	
-	return 0;
+			
+//};
 
-}
-
-
-int vop_isseekable(struct vnode *object){
-	(void) object;
-	return 0;
-
-}
-
-
-
+//struct filehandler filehandler_create(int rw,int initial_offset,const char *name)
+#endif /* _FILEHANDLER_H_ */
