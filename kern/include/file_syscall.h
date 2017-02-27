@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009
+ * Copyright (c) 2013
  *	The President and Fellows of Harvard College.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,26 +27,8 @@
  * SUCH DAMAGE.
  */
 
-#include <types.h>
-#include <unistd.h>
-#include <copyinout.h>
-#include <syscall.h>
+#ifndef _FILE_SYSCALL_H_
+#define _FILE_SYSCALL_H_
+int sys_write(int fd, const void *buf, size_t buflen);
 
-/*
- * Example system call: get the time of day.
- */
-int
-sys_write(int fd, const void *buf, size_t buflen);
-{
-	
-	int result;
-
-	result=1;
-//	result = copyout(,,);
-	if (result) {
-		return result;
-	}
-
-
-	return 0;
-}
+#endif /* _SYSCALL_H_ */

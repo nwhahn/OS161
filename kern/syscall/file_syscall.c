@@ -14,7 +14,6 @@
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
-M
  * THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -28,50 +27,29 @@ M
  * SUCH DAMAGE.
  */
 
-/*
- * Basic vnode ops functions.
- */
 #include <types.h>
-#include <kern/errno.h>
-#include <lib.h>
-#include <synch.h>
-#include <vfs.h>
-#include <vnode.h>
+//#include <unistd.h>
+#include <copyinout.h>
+#include <syscall.h>
+#include <file_syscall.h>
 
-
-
-int vop_read(struct vnode *file, struct uio *uio){
-	(void) file;
-	(void) uio;
-//	vfs_open(vfs_getcwd(uio), int openflags,mode_t mode,file);	
-//	uio->uio_resid=0;
-//	uio->uio_offset = uio->uio_resid + uio->uio_offset;
-
-//	vfs_close();
-	return 0;
-
-}
-
-
-int vop_write(struct vnode *file, struct uio *uio){
-	(void) file;
-	(void) uio;
-//	uio->uio_resid=0;
-//	uio->uio_offset = uio->uio_resid + uio->uio_offset;
-	vfs_open(vfs_getcwd,1 ,NULL,file);
+/*
+ * Example system call: get the time of day.
+ */
+int
+sys_write(int fd, const void *buf, size_t buflen)
+{
 	
-			
-			
+	int result;
+	(void) fd;
+	(void) buf;
+	(void) buflen;
+	result=1;
+//	result = copyout(,,);
+	if (result) {
+		return result;
+	}
+
+	
 	return 0;
-
 }
-
-
-int vop_isseekable(struct vnode *object){
-	(void) object;
-	return 0;
-
-}
-
-
-
