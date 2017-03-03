@@ -85,27 +85,6 @@ proc_create(const char *name)
 	/* VFS fields */
 	proc->p_cwd = NULL;
 	
-	struct filehandler *STDIN=filehandler_create(READONLY,0,"STDIN");
-	proc->filetable[0]=kmalloc(sizeof(*STDIN));
-	struct filehandler *STDOUT = filehandler_create(WRITEONLY,0,"STDOUT");
-
-	proc->filetable[1]=kmalloc(sizeof(*STDOUT));
-	struct filehandler *STDERR = filehandler_create(WRITEONLY,0,"STDERR");
-		
-	proc->filetable[0]=kmalloc(sizeof(*STDERR));
- 	if(STDIN==NULL||STDOUT==NULL||STDERR==NULL){
-		kfree(STDIN);
-		kfree(STDOUT);
-		kfree(STDERR);
-		kfree(proc);
-		return NULL;
-	}
-	
-	proc->filetable[0]=STDIN;
-	proc->filetable[1]=STDOUT;
-	proc->filetable[2]=STDERR;
-
-//	(void) STDIN;
 	return proc;
 }
 
@@ -215,7 +194,15 @@ proc_destroy(struct proc *proc)
 
 	KASSERT(proc->p_numthreads == 0);
 	spinlock_cleanup(&proc->p_lock);
+	int i;
+	for(i=0;sizeof(proc->filetable);i++){
+		kfree(proc->filetable[i]->filehandler_name);
+//		kfree(proc->filetable[i]->rw);
+//		kfree(proc->filetable[i]->offset);
+		kfree(proc->filetable[i]->fileobject);
+		kfree(proc->filetable[i]);
 
+	}
 	kfree(proc->p_name);
 	kfree(proc);
 }
@@ -264,6 +251,33 @@ proc_create_runprogram(const char *name)
 		VOP_INCREF(curproc->p_cwd);
 		newproc->p_cwd = curproc->p_cwd;
 	}
+
+	
+	struct filehandler *STDIN=filehandler_create(READONLY,0,"STDIN");
+	newproc->filetable[0]=kmalloc(sizeof(*STDIN));
+
+	struct filehandler *STDOUT = filehandler_create(WRITEONLY,0,"STDOUT");
+	newproc->filetable[1]=kmalloc(sizeof(*STDOUT));
+
+	struct filehandler *STDERR = filehandler_create(WRITEONLY,0,"STDERR");
+	newproc->filetable[2]=kmalloc(sizeof(*STDERR));
+
+ 	if(STDIN==NULL||STDOUT==NULL||STDERR==NULL){
+		kfree(STDIN);
+		kfree(STDOUT);
+		kfree(STDERR);
+		kfree(newproc->filetable);
+		kfree(newproc);
+		return NULL;
+	}
+	
+	newproc->filetable[0]=STDIN;
+	newproc->filetable[1]=STDOUT;
+	newproc->filetable[2]=STDERR;
+
+//	(void) STDIN;
+	
+	
 	spinlock_release(&curproc->p_lock);
 
 	return newproc;

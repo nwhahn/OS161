@@ -29,7 +29,7 @@
 
 
 
- /*
+/*
  * It makes the following address space calls:
  *    - first, as_define_region once for each segment of the program;
  *    - then, as_prepare_load;

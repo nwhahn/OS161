@@ -32,7 +32,7 @@
 #include <copyinout.h>
 #include <syscall.h>
 #include <file_syscall.h>
-
+#include<proc.h>
 /*
  * Example system call: get the time of day.
  */
@@ -52,4 +52,12 @@ sys_write(int fd, const void *buf, size_t buflen)
 
 	
 	return 0;
+}
+
+void sys_exit(int exitcode){
+	(void) exitcode;
+		
+
+	
+
 }

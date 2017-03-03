@@ -38,7 +38,8 @@ M
 #include <vfs.h>
 #include <vnode.h>
 
-
+#define O_READONLY 0
+#define O_WRITEONLY 1
 
 int vop_read(struct vnode *file, struct uio *uio){
 	(void) file;
@@ -58,9 +59,13 @@ int vop_write(struct vnode *file, struct uio *uio){
 	(void) uio;
 //	uio->uio_resid=0;
 //	uio->uio_offset = uio->uio_resid + uio->uio_offset;
-	vfs_open(vfs_getcwd,1 ,NULL,file);
 	
-			
+
+
+	
+	vfs_open(vfs_getcwd(uio),O_WRITEONLY,0,file);
+	
+	uio_move(void *ptr, size_t n, uio)			
 			
 	return 0;
 
