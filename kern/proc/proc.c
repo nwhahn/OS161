@@ -49,7 +49,7 @@
 #include <addrspace.h>
 #include <vnode.h>
 #include <filehandler.h>
-
+#include <vfs.h>
 #define READONLY 0
 #define WRITEONLY 1
 /*
@@ -276,8 +276,11 @@ proc_create_runprogram(const char *name)
 	newproc->filetable[2]=STDERR;
 
 //	(void) STDIN;
-	
-	
+      vfs_open((char *)"con:",READONLY,0,&newproc->filetable[0]->fileobject);	
+		
+//      vfs_open((char *)"con:",WRITEONLY,0,&newproc->filetable[1]->fileobject);	
+
+  //    vfs_open((char *)"con:",WRITEONLY,0,&newproc->filetable[2]->fileobject);	
 	spinlock_release(&curproc->p_lock);
 
 	return newproc;

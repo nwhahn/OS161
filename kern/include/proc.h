@@ -37,7 +37,7 @@
  */
 
 #include <spinlock.h>
-#include <filehandler.h>
+//#include <filehandler.h>
 struct addrspace;
 struct thread;
 struct vnode;
@@ -71,7 +71,7 @@ struct proc {
 	struct vnode *p_cwd;		/* current working directory */
 
 	/* add more material here as needed */
- 	struct filehandler *filetable[3];		
+ 	struct filehandler *filetable[64];		
 	//helpful
 
 			
