@@ -37,7 +37,7 @@ M
 #include <synch.h>
 #include <vfs.h>
 #include <vnode.h>
-
+#include <proc.h>
 #define O_READONLY 0
 #define O_WRITEONLY 1
 
@@ -59,13 +59,14 @@ int vop_write(struct vnode *file, struct uio *uio){
 	(void) uio;
 //	uio->uio_resid=0;
 //	uio->uio_offset = uio->uio_resid + uio->uio_offset;
+		
 	
-
+load_segment(getas(),file,uio->uio_offset, vaddr_t vaddr, size_t memsize, size_t filesize,0)
 
 	
 	vfs_open(vfs_getcwd(uio),O_WRITEONLY,0,file);
 	
-	uio_move(void *ptr, size_t n, uio)			
+//	uio_move(void *ptr, uio->uio_resid, uio);			
 			
 	return 0;
 

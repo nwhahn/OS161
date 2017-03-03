@@ -340,27 +340,15 @@ cv_wait(struct cv *cv, struct lock *lock)
 	// Write this
         KASSERT(lock!=NULL);
         KASSERT(cv!=NULL);
-        if(lock_do_i_hold(lock)==false){
-       		panic("cv wait failure: thread does not hold lock");
-	}
-       // lock->lock_wchan=cv->cv_wchan;
-       // lock_release(lock);
-       // lock->locked=1;
+	KASSERT(lock_do_i_hold(lock));
         spinlock_acquire(&cv->cv_lock);
         lock_release(lock);
-       // while(curthread->t_wchan_name!=NULL){
-      //  while(){
   
    	wchan_sleep(cv->cv_wchan,&cv->cv_lock); 
         
-       // cv_signal(cv,lock);
-    //wchan_wakeone(cv->cv_wchan,&lock->std_lock);    
-   //lock_acquire(lock);
  
         spinlock_release(&cv->cv_lock);
         lock_acquire(lock);        
-//	(void)cv;    // suppress warning until code gets written
-//	(void)lock;  // suppress warning until code gets written
 }
 
 void

@@ -29,6 +29,6 @@
 
 #ifndef _FILE_SYSCALL_H_
 #define _FILE_SYSCALL_H_
-int sys_write(int fd, const void *buf, size_t buflen);
+int sys_write(int fd, const void *buf, size_t buflen,int *retval);
 void sys_exit(int exitcode);
 #endif /* _SYSCALL_H_ */

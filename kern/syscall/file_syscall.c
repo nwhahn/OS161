@@ -32,25 +32,53 @@
 #include <copyinout.h>
 #include <syscall.h>
 #include <file_syscall.h>
-#include<proc.h>
+#include <proc.h>
+#include <current.h>
 /*
  * Example system call: get the time of day.
  */
 int
-sys_write(int fd, const void *buf, size_t buflen)
+sys_write(int fd, const void *buf, size_t buflen,int *retval)
 {
 	
-	int result;
+//	int result;
 	(void) fd;
 	(void) buf;
 	(void) buflen;
-	result=1;
-//	result = copyout(,,);
-	if (result) {
-		return result;
-	}
+	(void) retval;
+//	result=1;
+	struct proc *proc = curproc;
+	struct filehandler *fh= proc->filetable[fd];
 
 	
+
+	(void)fh;
+
+
+//	if (result) {
+//		return result;
+//	}
+	//error catching
+	//fd not valid file descriptor
+/*	if(fd==NULL){
+		retval=30;
+		return -1;
+	}*/
+	//address space invalid
+/*	if(){
+		retval=6;
+		return -1;
+	}*/	
+	//No free space in filesystem
+/*	if(){
+		retval=36;
+		return -1;
+	}*/
+	//Hardware I/O error occured while writing data	
+/*	if(){
+		retval=32;
+		return -1;
+	}*/
 	return 0;
 }
 
@@ -58,6 +86,6 @@ void sys_exit(int exitcode){
 	(void) exitcode;
 		
 
-	
-
+	struct proc *proc = curproc;	
+	proc_destroy(proc);
 }
