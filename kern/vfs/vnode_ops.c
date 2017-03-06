@@ -40,12 +40,12 @@ M
 #include <proc.h>
 #define O_READONLY 0
 #define O_WRITEONLY 1
-
+/*
 int vop_read(struct vnode *file, struct uio *uio){
 	(void) file;
 	(void) uio;
 //	vfs_open(vfs_getcwd(uio), int openflags,mode_t mode,file);	
-//	uio->uio_resid=0;
+//	uio->uio_resid=;
 //	uio->uio_offset = uio->uio_resid + uio->uio_offset;
 
 //	vfs_close();
@@ -57,6 +57,13 @@ int vop_read(struct vnode *file, struct uio *uio){
 int vop_write(struct vnode *file, struct uio *uio){
 	(void) file;
 	(void) uio;
+	int x;
+
+	spinlock_acquire(&curproc->p_lock);
+	x= vfs_open(vfs_getcwd(uio),O_WRITEONLY,0,file);	
+		
+
+	spinlock_release(&curproc->p_lock);
 //	uio->uio_resid=0;
 //	uio->uio_offset = uio->uio_resid + uio->uio_offset;
 		
@@ -79,5 +86,5 @@ int vop_isseekable(struct vnode *object){
 
 }
 
-
+*/
 

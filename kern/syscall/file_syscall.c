@@ -34,41 +34,51 @@
 #include <file_syscall.h>
 #include <proc.h>
 #include <current.h>
+#include <uio.h>
+#include <vnode.h>
 /*
  * Example system call: get the time of day.
  */
-int
+ssize_t
 sys_write(int fd, const void *buf, size_t buflen,int *retval)
 {
-	
-//	int result;
-	(void) fd;
-	(void) buf;
-	(void) buflen;
+//take the int fd and create the vnode from the corresponding filehandler
+//call vop write
+//handle errors on output 
+	int result;
 	(void) retval;
-//	result=1;
 	struct proc *proc = curproc;
+	struct vnode *vn;
 	struct filehandler *fh= proc->filetable[fd];
+	if(fh->fileobject==NULL){
+		fh->fileobject=vn; 
+	}
+	struct iovec iov;
+        struct uio myuio;
+        struct addrspace *as;
 
-	
+		
+        as = proc_getas();
 
-	(void)fh;
-
-
-//	if (result) {
-//		return result;
-//	}
-	//error catching
 	//fd not valid file descriptor
-/*	if(fd==NULL){
-		retval=30;
+	if(proc->filetable[fd]==NULL){
+		retval=(int *)(30);
 		return -1;
-	}*/
+	}
 	//address space invalid
-/*	if(){
-		retval=6;
+	if(as==NULL){
+		retval=(int *)(6);
 		return -1;
-	}*/	
+	}	
+        uio_kinit(&iov, &myuio,(void *)buf,buflen,(off_t)fh->offset, UIO_WRITE);
+        result = VOP_WRITE(fh->fileobject, &myuio);
+        if (result) {
+                return result;
+        }
+
+
+
+	//error catching
 	//No free space in filesystem
 /*	if(){
 		retval=36;
