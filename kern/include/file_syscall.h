@@ -30,5 +30,6 @@
 #ifndef _FILE_SYSCALL_H_
 #define _FILE_SYSCALL_H_
 ssize_t sys_write(int fd, const void *buf, size_t buflen,int *retval);
-void sys_exit(int exitcode);
+void _exit(int exitcode);
+ssize_t read(int fd, const void *buf, size_t buflen,int *retval);
 #endif /* _SYSCALL_H_ */
