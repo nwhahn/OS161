@@ -87,7 +87,7 @@ struct filehandler{
 
 };
 
-struct filehandler *filehandler_create(int rw,int offset, const char *name);
+struct filehandler *filehandler_create(int offset, const char *name);
 
 /* This is the process structure for the kernel and for kernel-only threads. */
 extern struct proc *kproc;

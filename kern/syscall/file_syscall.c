@@ -36,12 +36,20 @@
 #include <current.h>
 #include <uio.h>
 #include <vnode.h>
+#include <thread.h>
+
+
 /*
  * Example system call: get the time of day.
  */
 
 int
-sys_open(const char *filename, int flags, mode_t mode);
+sys_open(const char *filename, int flags, mode_t mode){
+	(void) filename;
+	(void) flags;
+	(void) mode;
+	return 0;
+}
 
 ssize_t
 sys_write(int fd, const void *buf, size_t buflen,int *retval)
@@ -52,11 +60,7 @@ sys_write(int fd, const void *buf, size_t buflen,int *retval)
 	int result;
 	(void) retval;
 	struct proc *proc = curproc;
-	struct vnode *vn;
 	struct filehandler *fh= proc->filetable[fd];
-	if(fh->fileobject==NULL){
-		fh->fileobject=vn; 
-	}
 	struct iovec iov;
         struct uio myuio;
         struct addrspace *as;
@@ -93,13 +97,53 @@ sys_write(int fd, const void *buf, size_t buflen,int *retval)
 		retval=32;
 		return -1;
 	}*/
+	return (ssize_t)0;
+}
+
+void _exit(int exitcode){
+	(void) exitcode;
+	thread_exit();		
+		
+}
+ssize_t read(int fd, const void *buf, size_t buflen, int *retval){
+		
+	int result;
+	(void) retval;
+	struct proc *proc = curproc;
+	struct filehandler *fh= proc->filetable[fd];
+	struct iovec iov;
+        struct uio myuio;
+        struct addrspace *as;
+
+			
+        as = proc_getas();
+
+	//fd not valid file descriptor
+	if(proc->filetable[fd]==NULL){
+		retval=(int *)(30);
+		return -1;
+	}
+	//address space invalid
+	if(as==NULL){
+		retval=(int *)(6);
+		return -1;
+	}	
+        uio_kinit(&iov, &myuio,(void *)buf,buflen,(off_t)fh->offset, UIO_READ);
+        result = VOP_READ(fh->fileobject, &myuio);
+        if (result) {
+                return result;
+        }
+
+
+
+	//error catching
+	//Hardware I/O error occured while writing data	
+/*	if(){
+		retval=32;
+		return -1;
+	}*/
 	return 0;
 }
 
-void sys_exit(int exitcode){
-	(void) exitcode;
-		
 
-	struct proc *proc = curproc;	
-	proc_destroy(proc);
-}
+
