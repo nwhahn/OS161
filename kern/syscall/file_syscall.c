@@ -42,6 +42,15 @@
 /*
  * Example system call: get the time of day.
  */
+
+int
+sys_open(const char *filename, int flags, mode_t mode){
+	(void) filename;
+	(void) flags;
+	(void) mode;
+	return 0;
+}
+
 ssize_t
 sys_write(int fd, const void *buf, size_t buflen,int *retval)
 {
