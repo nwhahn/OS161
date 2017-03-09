@@ -73,6 +73,7 @@ main(int argc, char **argv)
 			"Is your write syscall returning the right value?\n",
 			expected_len, len);
 	}
+	
 	// Now, we test
 	// close() may not be implemented.
 	// So just try to open the file again.

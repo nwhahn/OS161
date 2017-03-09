@@ -37,18 +37,91 @@
 #include <uio.h>
 #include <vnode.h>
 #include <thread.h>
-
+#include <kern/errno.h>
+#include <vfs.h>
+#include <kern/seek.h>
 
 /*
  * Example system call: get the time of day.
  */
+off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
+	
+	
+	
+	
+	
+	if(fd<3){
+		*retval=ESPIPE;
+		return -1;
+	}
+
+
+	struct filehandler *fh = curproc->filetable[fd];
+	if(fh==NULL){
+		*retval=EBADF;
+		return -1;
+	}
+	
+	if(whence==SEEK_SET){
+		fh->offset=pos;	
+		return 0;
+	}
+	else if(whence==SEEK_CUR){
+		fh->offset=fh->offset+pos;	
+		return 0;
+	}	
+	else if(whence==SEEK_END){
+		//set offset to end of file
+		//Look at this justin
+		return 0;
+	}
+	*retval=EINVAL;
+	return -1;
+
+}
+int
+sys_close(int fd,int *retval){
+
+	(void)fd;
+	struct proc *proc= curproc;
+	struct filehandler *fh= proc->filetable[fd];
+	if(fh==NULL){
+		*retval=EBADF;
+		return -1;
+	}
+	kfree(fh);
+	return 0;
+}
 
 int
-sys_open(const char *filename, int flags, mode_t mode){
+sys_open(const char *filename, int flags,int* retval){
 	(void) filename;
 	(void) flags;
-	(void) mode;
-	return 0;
+	(void) retval;
+	struct proc *proc=curproc;
+	int fd;
+
+
+	for(fd=0;fd<(int)(sizeof(proc->filetable)-1);fd++){
+			
+		if(proc->filetable[fd]==NULL){
+
+			char *name=kstrdup(filename);
+			struct filehandler *fh = filehandler_create(0,name);
+			proc->filetable[fd]=fh;	
+			char *name1 = kstrdup(filename);
+			struct vnode *vn;
+			vfs_open(name1,flags,0,&vn);
+		
+			proc->filetable[fd]->fileobject=vn;
+				
+			*retval=fd;
+			return 0;
+		}
+	}
+	
+			
+	return -1;	
 }
 
 ssize_t
@@ -64,28 +137,28 @@ sys_write(int fd, const void *buf, size_t buflen,int *retval)
 	struct iovec iov;
         struct uio myuio;
         struct addrspace *as;
-
+	//int x=fh->offset;
 		
         as = proc_getas();
 
 	//fd not valid file descriptor
 	if(proc->filetable[fd]==NULL){
-		retval=(int *)(30);
+		*retval=30;
 		return -1;
 	}
 	//address space invalid
 	if(as==NULL){
-		retval=(int *)(6);
+		*retval=6;
 		return -1;
 	}	
         uio_kinit(&iov, &myuio,(void *)buf,buflen,(off_t)fh->offset, UIO_WRITE);
         result = VOP_WRITE(fh->fileobject, &myuio);
+//	kprintf("%d",result);
         if (result) {
                 return result;
         }
-
-
-
+	
+		
 	//error catching
 	//No free space in filesystem
 /*	if(){
@@ -93,11 +166,12 @@ sys_write(int fd, const void *buf, size_t buflen,int *retval)
 		return -1;
 	}*/
 	//Hardware I/O error occured while writing data	
-/*	if(){
-		retval=32;
+	if(result==-1){
+		*retval=32;
 		return -1;
-	}*/
-	return (ssize_t)0;
+	}
+	*retval=buflen;
+	return 0;
 }
 
 void _exit(int exitcode){
@@ -120,12 +194,12 @@ ssize_t read(int fd, const void *buf, size_t buflen, int *retval){
 
 	//fd not valid file descriptor
 	if(proc->filetable[fd]==NULL){
-		retval=(int *)(30);
+		*retval=30;
 		return -1;
 	}
 	//address space invalid
 	if(as==NULL){
-		retval=(int *)(6);
+		*retval=6;
 		return -1;
 	}	
         uio_kinit(&iov, &myuio,(void *)buf,buflen,(off_t)fh->offset, UIO_READ);
@@ -138,10 +212,11 @@ ssize_t read(int fd, const void *buf, size_t buflen, int *retval){
 
 	//error catching
 	//Hardware I/O error occured while writing data	
-/*	if(){
-		retval=32;
+	if(result==-1){
+		*retval=32;
 		return -1;
-	}*/
+	}
+	*retval=buflen;
 	return 0;
 }
 
