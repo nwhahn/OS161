@@ -42,6 +42,7 @@
 #include <kern/seek.h>
 #include <stat.h>
 
+
 /*
  * Example system call: get the time of day.
 */
@@ -65,8 +66,6 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 		*retval=EBADF;
 		return -1;
 	}
-	//struct stat *stats=;
-	//VOP_STAT(fh->fileobject); 	
 	if(whence==SEEK_SET){
 		if(pos<0){
 			*retval=EINVAL;
@@ -83,16 +82,22 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 			return -1;
 		}
 		fh->offset=fh->offset+pos;	
-		return fh->offset;
+		return 0;
 		
 	}	
 	else if(whence==SEEK_END){
 		//set offset to end of file
-		kprintf("hererer\n");	
-		
-			
-	
-		return fh->offset;
+		struct stat stats;
+		VOP_STAT(fh->fileobject,&stats); 
+		off_t end = stats.st_size;	
+	//	kprintf("end=%d",(int)end);
+		if((pos+(int)end)<0){
+			*retval=EINVAL;
+			return -1;
+		}
+		fh->offset=pos+(int)end;
+		*retval=fh->offset;
+		return 0;
 	}
 	kprintf("here");
 	*retval=EINVAL;
