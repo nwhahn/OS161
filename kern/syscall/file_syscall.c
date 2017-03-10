@@ -63,17 +63,28 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 	}
 	
 	if(whence==SEEK_SET){
+		if(pos<0){
+			*retval=EINVAL;
+			return -1;
+
+		}		
 		fh->offset=pos;	
-		return 0;
+		return fh->offset;
 	}
 	else if(whence==SEEK_CUR){
+		if((fh->offset+pos)<0){
+			*retval=EINVAL;
+			return -1;
+		}
 		fh->offset=fh->offset+pos;	
-		return 0;
+		return fh->offset;
+		
 	}	
 	else if(whence==SEEK_END){
 		//set offset to end of file
 		//Look at this justin
-		return 0;
+		
+		return fh->offset;
 	}
 	*retval=EINVAL;
 	return -1;

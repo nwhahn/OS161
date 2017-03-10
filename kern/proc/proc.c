@@ -259,7 +259,7 @@ proc_create_runprogram(const char *name)
 	char *con3 = kstrdup("con:");
         vfs_open(con3,WRITEONLY,0,&newproc->filetable[2]->fileobject);	
 	spinlock_release(&curproc->p_lock);
-
+	newproc->pid=0;
 	return newproc;
 }
 

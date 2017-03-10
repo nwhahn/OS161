@@ -36,6 +36,7 @@
 #include <current.h>
 #include <syscall.h>
 #include <file_syscall.h>
+#include <endian.h>
 
 /*
  * System call dispatcher.
@@ -81,6 +82,7 @@ syscall(struct trapframe *tf)
 	int callno;
 	int32_t retval;
 	int err;
+	uint64_t y;
 
 	KASSERT(curthread != NULL);
 	KASSERT(curthread->t_curspl == 0);
@@ -98,6 +100,7 @@ syscall(struct trapframe *tf)
 	 */
 
 	retval = 0;
+	y=0;
 
 	switch (callno) {
 	    case SYS_reboot:
@@ -128,7 +131,10 @@ syscall(struct trapframe *tf)
 		err=sys_close(tf->tf_a0,&retval); 
 		break;		
 	    case SYS_lseek:
-		err=sys_lseek(tf->tf_a0,tf->tf_a1,tf->tf_a2,&retval);
+	
+		join32to64(tf->tf_a3,tf->tf_a2,&y);
+	//	copyin(tf->sp+16,,sizeof(tf->sp+16);
+		err=sys_lseek(tf->tf_a0,y,tf->tf_sp+16,&retval);
 		break;
 	    default:
 		kprintf("Unknown syscall %d\n", callno);

@@ -73,13 +73,13 @@ struct proc {
 	/* add more material here as needed */
  	struct filehandler *filetable[64];		
 	//helpful
-
+	int pid;	//process id
+	int ppid;	//parents process id
 			
 };
 
 struct filehandler{
 	char *filehandler_name;
-	int rw;
 	int offset;
 
 	struct vnode *fileobject;	
