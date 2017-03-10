@@ -37,7 +37,7 @@
 #include <syscall.h>
 #include <file_syscall.h>
 #include <endian.h>
-
+#include <copyinout.h>
 /*
  * System call dispatcher.
  *
@@ -132,9 +132,9 @@ syscall(struct trapframe *tf)
 		break;		
 	    case SYS_lseek:
 	
-		join32to64(tf->tf_a3,tf->tf_a2,&y);
-	//	copyin(tf->sp+16,,sizeof(tf->sp+16);
-		err=sys_lseek(tf->tf_a0,y,tf->tf_sp+16,&retval);
+		join32to64(tf->tf_a2,tf->tf_a3,&y);
+		copyin((const_userptr_t)tf->tf_sp+16,(void *)tf->tf_sp,(size_t)4);
+		err=sys_lseek(tf->tf_a0,y,copyout((const void*)tf->tf_sp,(userptr_t)tf->tf_sp+16,(size_t)4),&retval);
 		break;
 	    default:
 		kprintf("Unknown syscall %d\n", callno);

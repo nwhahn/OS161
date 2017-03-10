@@ -40,13 +40,14 @@
 #include <kern/errno.h>
 #include <vfs.h>
 #include <kern/seek.h>
+#include <stat.h>
 
 /*
  * Example system call: get the time of day.
- */
+*/
 off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 	
-	
+	kprintf("fd=%d,pos=%d,whence=%d",fd,(int)pos,whence);	
 	
 	
 	
@@ -57,18 +58,23 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 
 
 	struct filehandler *fh = curproc->filetable[fd];
+
+
+
 	if(fh==NULL){
 		*retval=EBADF;
 		return -1;
 	}
-	
+	//struct stat *stats=;
+	//VOP_STAT(fh->fileobject); 	
 	if(whence==SEEK_SET){
 		if(pos<0){
 			*retval=EINVAL;
 			return -1;
 
 		}		
-		fh->offset=pos;	
+		
+		fh->offset=pos;			
 		return fh->offset;
 	}
 	else if(whence==SEEK_CUR){
@@ -82,10 +88,13 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 	}	
 	else if(whence==SEEK_END){
 		//set offset to end of file
-		//Look at this justin
+		kprintf("hererer\n");	
 		
+			
+	
 		return fh->offset;
 	}
+	kprintf("here");
 	*retval=EINVAL;
 	return -1;
 
