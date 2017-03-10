@@ -83,6 +83,7 @@ syscall(struct trapframe *tf)
 	int32_t retval;
 	int err;
 	uint64_t y;
+	int dual=0;
 	//int x;
 	
 	KASSERT(curthread != NULL);
@@ -138,7 +139,7 @@ syscall(struct trapframe *tf)
 		copyin((const_userptr_t)tf->tf_sp+16,&whence,(size_t)4);
 		//x=copyout((const void*)whence,(userptr_t)tf->tf_sp+16,(size_t)4); 
 		err=sys_lseek(tf->tf_a0,y,whence,&retval);
-		split64to32((uint64_t)retval,&tf->tf_v0,&tf->tf_v1);			
+		dual=1;
 		break;
 	    default:
 		kprintf("Unknown syscall %d\n", callno);
@@ -156,8 +157,17 @@ syscall(struct trapframe *tf)
 		tf->tf_v0 = err;
 		tf->tf_a3 = 1;      /* signal an error */
 	}
+	else if(dual==1){
+	//	int a,b;
+
+		split64to32((uint64_t)retval,&tf->tf_v0,&tf->tf_v1);			
+		tf->tf_a3=0;
+
+
+	}
 	else {
 		/* Success. */
+
 		tf->tf_v0 = retval;
 		tf->tf_a3 = 0;      /* signal no error */
 	}

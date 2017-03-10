@@ -48,7 +48,7 @@
 */
 off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 	
-	kprintf("fd=%d,pos=%d,whence=%d",fd,(int)pos,whence);	
+//	kprintf("fd=%d,pos=%d,whence=%d",fd,(int)pos,whence);	
 	
 	
 	
@@ -73,15 +73,18 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 
 		}		
 		
-		fh->offset=pos;			
-		return fh->offset;
+		fh->offset=pos;
+		*retval=fh->offset;			
+		return 0;
 	}
 	else if(whence==SEEK_CUR){
 		if((fh->offset+pos)<0){
 			*retval=EINVAL;
 			return -1;
 		}
+		kprintf("curoff:%dpos:%dnew:%d\n",fh->offset,(int)pos,(fh->offset+(int)pos));	
 		fh->offset=fh->offset+pos;	
+		*retval=fh->offset;
 		return 0;
 		
 	}	
@@ -99,7 +102,6 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 		*retval=fh->offset;
 		return 0;
 	}
-	kprintf("here");
 	*retval=EINVAL;
 	return -1;
 
