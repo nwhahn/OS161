@@ -82,8 +82,8 @@ syscall(struct trapframe *tf)
 	int callno;
 	int32_t retval;
 	int err;
-	uint64_t y;
-	int dual=0;
+//	uint64_t y;
+	//int dual=0;
 	//int x;
 	
 	KASSERT(curthread != NULL);
@@ -102,7 +102,7 @@ syscall(struct trapframe *tf)
 	 */
 
 	retval = 0;
-	y=0;
+//	y=0;
 	//x=0;
 	switch (callno) {
 	    case SYS_reboot:
@@ -132,15 +132,15 @@ syscall(struct trapframe *tf)
 	    case SYS_close:
 		err=sys_close(tf->tf_a0,&retval); 
 		break;		
-	    case SYS_lseek:
+	 /*   case SYS_lseek:
 	
 		join32to64(tf->tf_a2,tf->tf_a3,&y);
 		int whence;	
 		copyin((const_userptr_t)tf->tf_sp+16,&whence,(size_t)4);
 		//x=copyout((const void*)whence,(userptr_t)tf->tf_sp+16,(size_t)4); 
 		err=sys_lseek(tf->tf_a0,y,whence,&retval);
-		dual=1;
-		break;
+	//	dual=1;
+		break;*/
 	    default:
 		kprintf("Unknown syscall %d\n", callno);
 		err = ENOSYS;
@@ -157,21 +157,21 @@ syscall(struct trapframe *tf)
 		tf->tf_v0 = err;
 		tf->tf_a3 = 1;      /* signal an error */
 	}
-	else if(dual==1){
+/*	else if(dual==1){
 	//	int a,b;
 
 		split64to32((uint64_t)retval,&tf->tf_v0,&tf->tf_v1);			
 		tf->tf_a3=0;
 
 
-	}
+	}*/
 	else {
 		/* Success. */
 
 		tf->tf_v0 = retval;
 		tf->tf_a3 = 0;      /* signal no error */
 	}
-
+	
 	/*
 	 * Now, advance the program counter, to avoid restarting
 	 * the syscall over and over again.

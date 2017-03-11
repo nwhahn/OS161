@@ -111,7 +111,7 @@ main(int argc, char **argv)
   for (i = 0; i < BUFFER_COUNT / 2; i++) {
 
     // 23 Mar 2012 : GWA : Use lseek() to skip the even guys.
-
+    printf("here%d\n",sizeof(writebuf));
     target = ((i * 2) + 1) * sizeof(writebuf);
     pos = lseek(fh, sizeof(writebuf), SEEK_CUR);
     if (pos != target) {
