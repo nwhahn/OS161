@@ -46,13 +46,8 @@ sys_write(int fd, const void *buf, size_t buflen,int *retval)
 //call vop write
 //handle errors on output 
 	int result;
-	(void) retval;
 	struct proc *proc = curproc;
-	struct vnode *vn;
 	struct filehandler *fh= proc->filetable[fd];
-	if(fh->fileobject==NULL){
-		fh->fileobject=vn; 
-	}
 	struct iovec iov;
         struct uio myuio;
         struct addrspace *as;
@@ -62,16 +57,18 @@ sys_write(int fd, const void *buf, size_t buflen,int *retval)
 
 	//fd not valid file descriptor
 	if(proc->filetable[fd]==NULL){
-		retval=(int *)(30);
+		*retval=30;
 		return -1;
 	}
 	//address space invalid
 	if(as==NULL){
-		retval=(int *)(6);
+		*retval=6;
 		return -1;
 	}	
         uio_kinit(&iov, &myuio,(void *)buf,buflen,(off_t)fh->offset, UIO_WRITE);
+	kprintf("a");
         result = VOP_WRITE(fh->fileobject, &myuio);
+	kprintf("b");
         if (result) {
                 return result;
         }
@@ -96,6 +93,5 @@ void sys_exit(int exitcode){
 	(void) exitcode;
 		
 
-	struct proc *proc = curproc;	
-	proc_destroy(proc);
+	thread_exit();
 }

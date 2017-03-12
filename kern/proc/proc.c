@@ -89,7 +89,7 @@ proc_create(const char *name)
 }
 
 struct filehandler *
-filehandler_create(int rw,int initial_offset, const char *name)
+filehandler_create(int initial_offset, const char *name)
 {
         //filehandler=NULL;
         struct filehandler *f;
@@ -97,16 +97,10 @@ filehandler_create(int rw,int initial_offset, const char *name)
 
         if(f==NULL) return NULL;
         f->filehandler_name= kstrdup(name);
-        if( f->filehandler_name ==NULL){
+        if(f->filehandler_name ==NULL){
                 kfree(f);
                 return NULL;
 	}
-        f->rw= rw;
-        if(f->rw >2){
-                kfree(f->filehandler_name);
-                kfree(f);
-                return NULL;
-        }
         f->offset=initial_offset;
 	return f;
 }
@@ -170,8 +164,7 @@ proc_destroy(struct proc *proc)
 		 * reactivate the old address space again behind our
 		 * back.
 		 *
-		 * If p is not the current process, still remove it
-		 * from p_addrspace before destroying it as a
+
 		 * precaution. Note that if p is not the current
 		 * process, in order to be here p must either have
 		 * never run (e.g. cleaning up after fork failed) or
@@ -194,7 +187,7 @@ proc_destroy(struct proc *proc)
 
 	KASSERT(proc->p_numthreads == 0);
 	spinlock_cleanup(&proc->p_lock);
-	int i;
+/*	int i;
 	for(i=0;sizeof(proc->filetable);i++){
 		kfree(proc->filetable[i]->filehandler_name);
 //		kfree(proc->filetable[i]->rw);
@@ -202,7 +195,7 @@ proc_destroy(struct proc *proc)
 		kfree(proc->filetable[i]->fileobject);
 		kfree(proc->filetable[i]);
 
-	}
+	}*/
 	kfree(proc->p_name);
 	kfree(proc);
 }
@@ -253,34 +246,20 @@ proc_create_runprogram(const char *name)
 	}
 
 	
-	struct filehandler *STDIN=filehandler_create(READONLY,0,"STDIN");
-	newproc->filetable[0]=kmalloc(sizeof(*STDIN));
+	newproc->filetable[0]=filehandler_create(0,"STDIN");
 
-	struct filehandler *STDOUT = filehandler_create(WRITEONLY,0,"STDOUT");
-	newproc->filetable[1]=kmalloc(sizeof(*STDOUT));
+	newproc->filetable[1]=filehandler_create(0,"STDOUT");
 
-	struct filehandler *STDERR = filehandler_create(WRITEONLY,0,"STDERR");
-	newproc->filetable[2]=kmalloc(sizeof(*STDERR));
-
- 	if(STDIN==NULL||STDOUT==NULL||STDERR==NULL){
-		kfree(STDIN);
-		kfree(STDOUT);
-		kfree(STDERR);
-		kfree(newproc->filetable);
-		kfree(newproc);
-		return NULL;
-	}
+	newproc->filetable[2]=filehandler_create(0,"STDERR");
 	
-	newproc->filetable[0]=STDIN;
-	newproc->filetable[1]=STDOUT;
-	newproc->filetable[2]=STDERR;
 
-//	(void) STDIN;
-      vfs_open((char *)"con:",READONLY,0,&newproc->filetable[0]->fileobject);	
-		
-//      vfs_open((char *)"con:",WRITEONLY,0,&newproc->filetable[1]->fileobject);	
 
-  //    vfs_open((char *)"con:",WRITEONLY,0,&newproc->filetable[2]->fileobject);	
+	char *con1= kstrdup("con:");
+	vfs_open(con1,READONLY,0,&newproc->filetable[0]->fileobject);	
+	char *con2= kstrdup("con:");		
+      	vfs_open(con2,WRITEONLY,0,&newproc->filetable[1]->fileobject);	
+	char *con3=kstrdup("con:");
+  	vfs_open(con3,WRITEONLY,0,&newproc->filetable[2]->fileobject);	
 	spinlock_release(&curproc->p_lock);
 
 	return newproc;
