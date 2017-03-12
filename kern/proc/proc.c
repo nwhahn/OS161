@@ -50,6 +50,7 @@
 #include <vnode.h>
 #include <filehandler.h>
 #include <vfs.h>
+#include <thread.h>
 #define READONLY 0
 #define WRITEONLY 1
 /*
