@@ -49,7 +49,7 @@
 off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 	
 //	kprintf("fd=%d,pos=%d,whence=%d",fd,(int)pos,whence);	
-	
+		
 	
 	
 	if(fd<3){
@@ -61,11 +61,12 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 	struct filehandler *fh = curproc->filetable[fd];
 
 	
-
-	if(curproc->filetable[fd]==NULL){
+	
+	if(fh==NULL){
 		*retval=EBADF;
 		return -1;
 	}
+//	kprintf("things\n");
 	if(whence==SEEK_SET){
 		if(pos<0){
 			*retval=EINVAL;
@@ -110,7 +111,7 @@ int
 sys_close(int fd,int *retval){
 
 	//(void)fd;
-	struct proc *proc= curproc;
+//	struct proc *proc= curproc;
 //	struct filehandler *fh= proc->filetable[fd];
 	if(curproc->filetable[fd]==NULL){
 		*retval=EBADF;
