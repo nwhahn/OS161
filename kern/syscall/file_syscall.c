@@ -41,11 +41,17 @@
 #include <vfs.h>
 #include <kern/seek.h>
 #include <stat.h>
+int fork(int *retval){
+	(void)retval;	
+	return 0;
+}
+int sys_getpid(int *retval){
+	(void)retval;
+	retval=&curproc->pid;
+	return 0;
 
 
-/*
- * Example system call: get the time of day.
-*/
+}
 off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 	
 //	kprintf("fd=%d,pos=%d,whence=%d",fd,(int)pos,whence);	

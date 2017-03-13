@@ -183,15 +183,6 @@ proc_destroy(struct proc *proc)
 	}
 	KASSERT(proc->p_numthreads == 0);
 	spinlock_cleanup(&proc->p_lock);
-/*	int i;
-	for(i=0;sizeof(proc->filetable);i++){
-		kfree(proc->filetable[i]->filehandler_name);
-//		kfree(proc->filetable[i]->rw);
-//		kfree(proc->filetable[i]->offset);
-		kfree(proc->filetable[i]->fileobject);
-		kfree(proc->filetable[i]);
-
-	}*/
 	kfree(proc->p_name);
 	kfree(proc);
 }
@@ -227,7 +218,6 @@ proc_create_runprogram(const char *name)
 	/* VM fields */
 
 	newproc->p_addrspace = NULL;
-	kprintf("please?!\n");
 	/* VFS fields */
 	
 	/*
@@ -242,15 +232,11 @@ proc_create_runprogram(const char *name)
 	}
 
 	spinlock_release(&curproc->p_lock);	
-	kprintf("dirtybadgers\n");
 	struct vnode *vn;
 	struct vnode *vn1;
 	struct vnode *vn2;
-	kprintf("work?\n");
-	kprintf("naggers\n");
 	char *con1 = kstrdup("con:");
         vfs_open(con1,READONLY,0,&vn);	
-	kprintf("eyyyyyy\n");
 	char *con2= kstrdup("con:");		
         vfs_open(con2,WRITEONLY,0,&vn1);
 	

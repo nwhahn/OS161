@@ -86,6 +86,7 @@ struct filehandler{
 
 
 };
+struct proc *proctable[64];
 
 struct filehandler *filehandler_create(int offset, const char *name);
 

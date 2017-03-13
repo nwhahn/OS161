@@ -37,4 +37,8 @@ int sys_open(const char *filename, int flags, int* retval);
 
 void _exit(int exitcode);
 ssize_t read(int fd, const void *buf, size_t buflen,int *retval);
+
+//proc commands
+int sys_getpid(int *retval);
+int fork(int *retval);
 #endif /* _SYSCALL_H_ */
