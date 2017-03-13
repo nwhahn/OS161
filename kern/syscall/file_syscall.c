@@ -83,8 +83,6 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 			return -1;
 		}
 		kprintf("curoff:%dpos:%dnew:%d\n",fh->offset,(int)pos,(fh->offset+(int)pos));	
-		fh->offset=fh->offset+pos;	
-		*retval=fh->offset;
 		return 0;
 
 	}
@@ -116,6 +114,8 @@ sys_close(int fd,int *retval){
 		*retval=EBADF;
 		return -1;
 	}
+	vfs_close(curproc->filetable[fd]->fileobject);
+	curproc->filetable[fd]->offset=0;
 	curproc->filetable[fd]=NULL;
 	//kfree(fh); should not kfree because table should be static
 	return 0;
