@@ -95,13 +95,8 @@ filehandler_create(int initial_offset, const char *name)
         //filehandler=NULL;
         struct filehandler *f;
         f = kmalloc(sizeof(*f));
-
+	(void) name;
         if(f==NULL) return NULL;
-        f->filehandler_name= kstrdup(name);
-        if( f->filehandler_name ==NULL){
-                kfree(f);
-                return NULL;
-	}
         f->offset=initial_offset;
 	return f;
 }
@@ -232,7 +227,7 @@ proc_create_runprogram(const char *name)
 	/* VM fields */
 
 	newproc->p_addrspace = NULL;
-
+	kprintf("please?!\n");
 	/* VFS fields */
 	
 	/*
@@ -246,20 +241,31 @@ proc_create_runprogram(const char *name)
 		newproc->p_cwd = curproc->p_cwd;
 	}
 
-	
-	newproc->filetable[0]=filehandler_create(0,"STDIN");
-
-	newproc->filetable[1]=filehandler_create(0,"STDOUT");
-
-	newproc->filetable[2]=filehandler_create(0,"STDERR");
+	spinlock_release(&curproc->p_lock);	
+	kprintf("dirtybadgers\n");
+	struct vnode *vn;
+	struct vnode *vn1;
+	struct vnode *vn2;
+	kprintf("work?\n");
+	kprintf("naggers\n");
 	char *con1 = kstrdup("con:");
-        vfs_open(con1,READONLY,0,&newproc->filetable[0]->fileobject);	
+        vfs_open(con1,READONLY,0,&vn);	
+	kprintf("eyyyyyy\n");
 	char *con2= kstrdup("con:");		
-        vfs_open(con2,WRITEONLY,0,&newproc->filetable[1]->fileobject);	
+        vfs_open(con2,WRITEONLY,0,&vn1);
+	
 	char *con3 = kstrdup("con:");
-        vfs_open(con3,WRITEONLY,0,&newproc->filetable[2]->fileobject);	
-	spinlock_release(&curproc->p_lock);
-	newproc->pid=0;
+        vfs_open(con3,WRITEONLY,0,&vn2);	
+	newproc->filetable[0]=filehandler_create(0,"STDIN");
+        newproc->filetable[1]=filehandler_create(0,"STDOUT");
+        newproc->filetable[2]=filehandler_create(0,"STDERR");
+
+	newproc->filetable[0]->fileobject=vn;
+	newproc->filetable[1]->fileobject=vn1;
+	newproc->filetable[2]->fileobject=vn2;
+	
+	//spinlock_release(&curproc->p_lock);
+	newproc->pid=1;
 	return newproc;
 }
 

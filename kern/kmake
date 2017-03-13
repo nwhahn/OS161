@@ -1,11 +1,10 @@
 #!/bin/sh
 
-cd conf
-./config DUMBVM
-cd ../
+#cd conf
+#./config DUMBVM
 cd compile/DUMBVM
 #bmake clean
-bmake depend
+#bmake depend
 bmake
 bmake install
 cd ../../

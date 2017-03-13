@@ -79,7 +79,7 @@ struct proc {
 };
 
 struct filehandler{
-	char *filehandler_name;
+//	char *filehandler_name;
 	int offset;
 
 	struct vnode *fileobject;	

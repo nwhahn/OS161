@@ -62,7 +62,7 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 
 
 
-	if(fh==NULL){
+	if(curproc->filetable[fd]==NULL){
 		*retval=EBADF;
 		return -1;
 	}
@@ -86,8 +86,8 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 		fh->offset=fh->offset+pos;	
 		*retval=fh->offset;
 		return 0;
-		
-	}	
+
+	}
 	else if(whence==SEEK_END){
 		//set offset to end of file
 		struct stat stats;
@@ -109,14 +109,15 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 int
 sys_close(int fd,int *retval){
 
-	(void)fd;
+	//(void)fd;
 	struct proc *proc= curproc;
-	struct filehandler *fh= proc->filetable[fd];
-	if(fh==NULL){
+//	struct filehandler *fh= proc->filetable[fd];
+	if(curproc->filetable[fd]==NULL){
 		*retval=EBADF;
 		return -1;
 	}
-	kfree(fh);
+	curproc->filetable[fd]=NULL;
+	//kfree(fh); should not kfree because table should be static
 	return 0;
 }
 
@@ -158,27 +159,30 @@ sys_write(int fd, const void *buf, size_t buflen,int *retval)
 //call vop write
 //handle errors on output 
 	int result;
-	(void) retval;
-	struct proc *proc = curproc;
-	struct filehandler *fh= proc->filetable[fd];
+	//(void) retval;
+//	struct proc *proc = curproc;
+	struct filehandler *fh= curproc->filetable[fd];
 	struct iovec iov;
         struct uio myuio;
-        struct addrspace *as;
+       // struct addrspace *as;
 	//int x=fh->offset;
 		
-        as = proc_getas();
+       // as = proc_getas();
 
 	//fd not valid file descriptor
-	if(proc->filetable[fd]==NULL){
+	if(fh==NULL){
+		kprintf("fh was NULL\n");
 		*retval=30;
 		return -1;
 	}
 	//address space invalid
-	if(as==NULL){
+/*	if(as==NULL){
 		*retval=6;
 		return -1;
-	}	
-        uio_kinit(&iov, &myuio,(void *)buf,buflen,(off_t)fh->offset, UIO_WRITE);
+	}*/
+	char *buffer[buflen];
+	copyin((const_userptr_t)buf,buffer,(size_t)buflen);	
+        uio_kinit(&iov, &myuio,buffer,buflen,(off_t)fh->offset, UIO_WRITE);
         result = VOP_WRITE(fh->fileobject, &myuio);
 //	kprintf("%d",result);
         if (result) {
@@ -193,11 +197,12 @@ sys_write(int fd, const void *buf, size_t buflen,int *retval)
 		return -1;
 	}*/
 	//Hardware I/O error occured while writing data	
-	if(result==-1){
+/*	if(result==-1){
 		*retval=32;
 		return -1;
-	}
+	}*/
 	*retval=buflen;
+	fh->offset = fh->offset+buflen;
 	return 0;
 }
 
