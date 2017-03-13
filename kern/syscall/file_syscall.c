@@ -60,7 +60,7 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 
 	struct filehandler *fh = curproc->filetable[fd];
 
-
+	
 
 	if(curproc->filetable[fd]==NULL){
 		*retval=EBADF;
@@ -83,6 +83,8 @@ off_t sys_lseek(int fd,off_t pos, int whence, int *retval){
 			return -1;
 		}
 		kprintf("curoff:%dpos:%dnew:%d\n",fh->offset,(int)pos,(fh->offset+(int)pos));	
+		fh->offset=fh->offset+(int)pos;	
+		*retval=fh->offset;
 		return 0;
 
 	}
