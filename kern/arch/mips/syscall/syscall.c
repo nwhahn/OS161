@@ -36,6 +36,7 @@
 #include <current.h>
 #include <syscall.h>
 #include <file_syscall.h>
+#include <proc_syscall.h>
 #include <endian.h>
 #include <copyinout.h>
 /*
@@ -143,6 +144,12 @@ syscall(struct trapframe *tf)
 		//x=copyout((const void*)whence,(userptr_t)tf->tf_sp+16,(size_t)4); 
 		err=sys_lseek(tf->tf_a0,y,whence,&retval);
 		dual=1;
+		break;
+	    //proc sys calls
+	    case SYS_getpid:
+
+		err=0;
+	    	sys_getpid();
 		break;
 	    default:
 		kprintf("Unknown syscall %d\n", callno);
