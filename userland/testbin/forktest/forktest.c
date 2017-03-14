@@ -188,7 +188,6 @@ test(int nowait)
 		// 0, 1, 2 are stdin, stdout, stderr
 		err(1, "Failed to open file to write data into\n");
 	}
-
 	pid0 = dofork();
 	nprintf(".");
 	write(fd, "A", 1);

@@ -42,8 +42,68 @@
 #include <kern/seek.h>
 #include <stat.h>
 int fork(int *retval){
-	(void)retval;	
-	return 0;
+	(void)retval;
+	int i;
+//	kprintf("0\n");
+	for(i=1;i<((int)sizeof(proctable));i++){
+		
+		if(proctable[i]==NULL){
+						
+			kprintf("%d\n",i);
+			struct proc *childproc;
+			childproc=kmalloc(sizeof(*childproc));
+			if(childproc==NULL){
+				return -1;
+			}
+			char *name=kstrdup("new");
+			childproc->p_name=name;
+			if(childproc->p_name==NULL){
+
+				kfree(childproc);
+				return -1;
+
+			}
+			childproc->p_numthreads=0;
+			spinlock_init(&childproc->p_lock);
+
+			childproc->p_addrspace=proc_setas(curproc->p_addrspace);
+			childproc->p_cwd=NULL;
+			childproc->pid=i;
+			childproc->ppid=curproc->pid;
+			int j;
+			
+			kprintf("pid=%d,ppid=%d\n",childproc->pid,childproc->ppid);
+			for(j=0;j<((int)sizeof(curproc->filetable));j++){
+				if(curproc->filetable[j]!=NULL){
+				childproc->filetable[j]=curproc->filetable[j];
+				}
+					
+			}
+			kprintf("4\n");
+				
+//			struct filehandler *fh=curproc->filetable;
+//			childproc->filetable=curproc->filetable;
+			
+//			(void)fh;
+						
+
+			if(curproc->pid==i){
+				*retval=0;
+				return 0;
+			}
+			else{
+				*retval=i;
+				return 0;
+			}
+		}
+			
+	}
+	*retval=11;
+	return -1;
+	
+			
+					
+	
 }
 int sys_getpid(int *retval){
 	(void)retval;

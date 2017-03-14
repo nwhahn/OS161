@@ -3,8 +3,8 @@
 #cd conf
 #./config DUMBVM
 cd compile/DUMBVM
-bmake clean
-bmake depend
+#bmake clean
+#bmake depend
 bmake
 bmake install
 cd ../../

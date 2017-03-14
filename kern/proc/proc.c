@@ -88,7 +88,6 @@ proc_create(const char *name)
 	
 	return proc;
 }
-
 struct filehandler *
 filehandler_create(int initial_offset, const char *name)
 {
@@ -121,7 +120,6 @@ proc_destroy(struct proc *proc)
 
 	KASSERT(proc != NULL);
 	KASSERT(proc != kproc);
-
 	/*
 	 * We don't take p_lock in here because we must have the only
 	 * reference to this structure. (Otherwise it would be
@@ -209,7 +207,7 @@ struct proc *
 proc_create_runprogram(const char *name)
 {
 	struct proc *newproc;
-
+	proctable[0]=NULL;
 	newproc = proc_create(name);
 	if (newproc == NULL) {
 		return NULL;
@@ -252,6 +250,7 @@ proc_create_runprogram(const char *name)
 	
 	//spinlock_release(&curproc->p_lock);
 	newproc->pid=1;
+	proctable[1]=newproc;
 	return newproc;
 }
 

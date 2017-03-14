@@ -87,7 +87,6 @@ struct filehandler{
 
 };
 struct proc *proctable[64];
-
 struct filehandler *filehandler_create(int offset, const char *name);
 
 /* This is the process structure for the kernel and for kernel-only threads. */
