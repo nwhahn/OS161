@@ -40,5 +40,5 @@ ssize_t read(int fd, const void *buf, size_t buflen,int *retval);
 
 //proc commands
 int sys_getpid(int *retval);
-int fork(int *retval);
+int fork(struct trapframe *tf,int *retval);
 #endif /* _SYSCALL_H_ */

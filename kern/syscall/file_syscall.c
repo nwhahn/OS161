@@ -41,7 +41,7 @@
 #include <vfs.h>
 #include <kern/seek.h>
 #include <stat.h>
-int fork(int *retval){
+int fork(struct trapframe *tf,int *retval){
 	(void)retval;
 	int i;
 //	kprintf("0\n");
@@ -49,7 +49,6 @@ int fork(int *retval){
 		
 		if(proctable[i]==NULL){
 						
-			kprintf("%d\n",i);
 			struct proc *childproc;
 			childproc=kmalloc(sizeof(*childproc));
 			if(childproc==NULL){
@@ -72,21 +71,27 @@ int fork(int *retval){
 			childproc->ppid=curproc->pid;
 			int j;
 			
-			kprintf("pid=%d,ppid=%d\n",childproc->pid,childproc->ppid);
-			for(j=0;j<((int)sizeof(curproc->filetable));j++){
+			
+			
+				
+			for(j=0;j<((int)sizeof(curproc->filetable)-1)/4;j++){
 				if(curproc->filetable[j]!=NULL){
-				childproc->filetable[j]=curproc->filetable[j];
+
+					childproc->filetable[j]=filehandler_create(curproc->filetable[j]->offset,"blah");
+					childproc->filetable[j]->fileobject=curproc->filetable[j]->fileobject;
+					
 				}
 					
 			}
-			kprintf("4\n");
 				
-//			struct filehandler *fh=curproc->filetable;
-//			childproc->filetable=curproc->filetable;
-			
-//			(void)fh;
-						
+			int result;
+			result=thread_fork(name,childproc,void(*entrypoint)(tf,(unsigned long)0),tf,(unsigned long)0);				
+			if (result!=0){
+				*retval=result;
+				return -1;
 
+
+			}
 			if(curproc->pid==i){
 				*retval=0;
 				return 0;
