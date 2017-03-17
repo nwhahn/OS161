@@ -39,7 +39,7 @@ void _exit(int exitcode);
 ssize_t read(int fd, const void *buf, size_t buflen,int *retval);
 
 //proc commands
-int exec(char *progname);
+int exec(char *progname,char **args,int *retval);
 int sys_getpid(int *retval);
 int fork(struct trapframe *tf,int *retval);
 int wait_pid(int pid,int *status, int options, int *retval);

@@ -50,7 +50,8 @@
 //^^^^^^^^^^^^^^^^^^^^^^
 
 
-int exec(char *progname){
+int exec(char *progname,char **args,int *retval){
+	(void)args;
 	struct addrspace *as;
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
@@ -58,13 +59,15 @@ int exec(char *progname){
 
 	result = vfs_open(progname,O_RDONLY, 0, &v);
 	if (result) {
-		return result;
+		*retval=result;
+		return -1;
 	}
 
 	as = as_create();
 	if (as == NULL) {
 		vfs_close(v);
-		return ENOMEM;
+		*retval= ENOMEM;
+		return -1;
 	}
 
 	proc_setas(as);
@@ -73,20 +76,23 @@ int exec(char *progname){
 	result =load_elf(v, &entrypoint);
 	if (result){
 		vfs_close(v);
-		return result;
+		*retval= result;
+		return -1;
 	}
 
 	vfs_close(v);
 	
 	result= as_define_stack(as, &stackptr);
 	if (result) {
-		return result;
+		*retval=result;
+		return -1;
 	}
 
 	enter_new_process(0,NULL,NULL,stackptr,entrypoint);
 
 	panic("enter_new_process(exec) returned\n");
-	return EINVAL;
+	*retval= EINVAL;
+	return -1;
 }
 
 int wait_pid(int pid,int *status, int options,int *retval){
