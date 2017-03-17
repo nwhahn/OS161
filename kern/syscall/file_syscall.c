@@ -41,6 +41,13 @@
 #include <vfs.h>
 #include <kern/seek.h>
 #include <stat.h>
+int wait_pid(int pid,int *status, int options,int *retval){
+	(void)status;
+	(void)options;
+		
+	*retval=pid;
+	return 0;
+}
 int fork(struct trapframe *tf,int *retval){
 	(void)retval;
 	int i;
@@ -83,9 +90,9 @@ int fork(struct trapframe *tf,int *retval){
 				}
 					
 			}
-				
+			(void)tf;		
 			int result;
-			result=thread_fork(name,childproc,void(*entrypoint)(tf,(unsigned long)0),tf,(unsigned long)0);				
+			result=thread_fork(name,childproc,(void *)tf,(void *)tf,(unsigned long)0);				
 			if (result!=0){
 				*retval=result;
 				return -1;

@@ -85,7 +85,7 @@ syscall(struct trapframe *tf)
 	uint64_t y;
 	int dual=0;
 	//int x;
-	
+		
 	KASSERT(curthread != NULL);
 	KASSERT(curthread->t_curspl == 0);
 	KASSERT(curthread->t_iplhigh_count == 0);
@@ -153,6 +153,8 @@ syscall(struct trapframe *tf)
 	    case SYS_fork:
 		err=fork(tf,&retval);
 		break;
+	    case SYS_waitpid:
+		err=wait_pid(tf->tf_a0,(int *)tf->tf_a1,tf->tf_a2,&retval);
 	    default:
 		kprintf("Unknown syscall %d\n", callno);
 		err = ENOSYS;
