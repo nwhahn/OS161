@@ -41,6 +41,54 @@
 #include <vfs.h>
 #include <kern/seek.h>
 #include <stat.h>
+
+//vvv added for exec vvv
+#include <kern/fcntl.h>
+#include <lib.h>
+#include <addrspace.h>
+#include <vm.h>
+//^^^^^^^^^^^^^^^^^^^^^^
+
+
+int exec(char *progname){
+	struct addrspace *as;
+	struct vnode *v;
+	vaddr_t entrypoint, stackptr;
+	int result;
+
+	result = vfs_open(progname, 0_RDONLY, 0, &v);
+	if (result) {
+		return result;
+	}
+
+	as = as_create();
+	if (as == NULL) {
+		vfs_close(v);
+		return ENOMEM;
+	}
+
+	proc_setas(as);
+	as_activate();
+
+	result =load_elf(v, &entrypoint);
+	if (result){
+		vfs_close(v);
+		return result;
+	}
+
+	vfs_close(v);
+	
+	result= as_define_stack(as, &stackptr);
+	if (result) {
+		return result;
+	}
+
+	enter_new_process(0,NULL,NULL,stackptr,entrypoint);
+
+	panic("enter_new_process(exec) returned\n");
+	return EINVAL;
+}
+
 int wait_pid(int pid,int *status, int options,int *retval){
 	(void)status;
 	(void)options;
