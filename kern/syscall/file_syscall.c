@@ -56,7 +56,7 @@ int exec(char *progname){
 	vaddr_t entrypoint, stackptr;
 	int result;
 
-	result = vfs_open(progname, 0_RDONLY, 0, &v);
+	result = vfs_open(progname,O_RDONLY, 0, &v);
 	if (result) {
 		return result;
 	}
