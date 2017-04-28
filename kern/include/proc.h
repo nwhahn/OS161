@@ -37,6 +37,7 @@
  */
 
 #include <spinlock.h>
+#include <kern/wait.h>
 //#include <filehandler.h>
 struct addrspace;
 struct thread;
@@ -69,13 +70,15 @@ struct proc {
 
 	/* VFS */
 	struct vnode *p_cwd;		/* current working directory */
-
+	
 	/* add more material here as needed */
  	struct filehandler *filetable[64];		
 	//helpful
 	int pid;	//process id
 	int ppid;	//parents process id
-			
+	int status;	
+	struct cv *cv;
+	struct lock *cvlock;		
 };
 
 struct filehandler{
@@ -86,6 +89,7 @@ struct filehandler{
 
 
 };
+struct lock *lockfork;
 struct proc *proctable[64];
 struct filehandler *filehandler_create(int offset, const char *name);
 

@@ -51,6 +51,7 @@
 #include <filehandler.h>
 #include <vfs.h>
 #include <thread.h>
+#include <synch.h>
 #define READONLY 0
 #define WRITEONLY 1
 /*
@@ -85,7 +86,6 @@ proc_create(const char *name)
 
 	/* VFS fields */
 	proc->p_cwd = NULL;
-	
 	return proc;
 }
 struct filehandler *
@@ -181,8 +181,11 @@ proc_destroy(struct proc *proc)
 	}
 	KASSERT(proc->p_numthreads == 0);
 	spinlock_cleanup(&proc->p_lock);
+	cv_destroy(proc->cv);
+	lock_destroy(proc->cvlock);
 	kfree(proc->p_name);
 	kfree(proc);
+	lock_destroy(lockfork);
 }
 
 /*
@@ -250,7 +253,9 @@ proc_create_runprogram(const char *name)
 	
 	//spinlock_release(&curproc->p_lock);
 	newproc->pid=1;
+	newproc->status=-1;
 	proctable[1]=newproc;
+	lockfork=lock_create("forklock");
 	return newproc;
 }
 

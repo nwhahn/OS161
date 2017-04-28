@@ -41,18 +41,20 @@
 #include <vfs.h>
 #include <kern/seek.h>
 #include <stat.h>
-
+#include <kern/wait.h>
 //vvv added for exec vvv
 #include <kern/fcntl.h>
 #include <lib.h>
 #include <addrspace.h>
 #include <vm.h>
 //^^^^^^^^^^^^^^^^^^^^^^
+#include <synch.h>
 
-
-int exec(char *progname,char **args,int *retval){
+void exec(char *progname,char **args,int *retval){
 	(void)args;
-	struct addrspace *as;
+	(void) progname;
+	(void) retval;
+/*	struct addrspace *as;
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
 	int result;
@@ -91,18 +93,48 @@ int exec(char *progname,char **args,int *retval){
 	enter_new_process(0,NULL,NULL,stackptr,entrypoint);
 
 	panic("enter_new_process(exec) returned\n");
-	*retval= EINVAL;
-	return -1;
+	*retval= EINVAL;*/
+	
 }
 
 int wait_pid(int pid,int *status, int options,int *retval){
-	(void)status;
 	(void)options;
+	(void)retval;
 		
-	*retval=pid;
+	if(proctable[pid]->status==__WEXITED){
+		cv_wait(proctable[pid]->cv,proctable[pid]->cvlock);
+		*retval=pid;
+		return 0;
+	}
+	*status=curproc->status;
 	return 0;
+	
+/*        if(proctable[pid]->status==__WEXITED){
+		cv_signal(proctable[pid]->cv,proctable[pid]->cvlock);
+		*retval=pid;
+		return 0;
+		
+	}	
+	else if(proctable[pid]->status==__WSIGNALED){
+		*status=curproc->status;		
+		return 0;
+	}		
+	else if(proctable[pid]->status==__WCORED){
+		*status = curproc->status;	
+		return 0;
+	}		
+	else if(proctable[pid]->status==__WSTOPPED){
+		*status=curproc->status;
+		return 0;
+	}
+	else{
+		cv_wait(proctable[pid]->cv,proctable[pid]->cvlock);
+		return 0;
+
+	}*/
 }
 int fork(struct trapframe *tf,int *retval){
+	lock_acquire(lockfork);
 	(void)retval;
 	int i;
 //	kprintf("0\n");
@@ -113,6 +145,7 @@ int fork(struct trapframe *tf,int *retval){
 			struct proc *childproc;
 			childproc=kmalloc(sizeof(*childproc));
 			if(childproc==NULL){
+				lock_release(lockfork);
 				return -1;
 			}
 			char *name=kstrdup("new");
@@ -120,6 +153,7 @@ int fork(struct trapframe *tf,int *retval){
 			if(childproc->p_name==NULL){
 
 				kfree(childproc);
+				lock_release(lockfork);
 				return -1;
 
 			}
@@ -130,8 +164,10 @@ int fork(struct trapframe *tf,int *retval){
 			childproc->p_cwd=NULL;
 			childproc->pid=i;
 			childproc->ppid=curproc->pid;
+			childproc->status=-1;
 			int j;
-			
+			childproc->cv=cv_create("newcv");
+			childproc->cvlock=lock_create("newlock");	
 			
 			
 				
@@ -149,16 +185,19 @@ int fork(struct trapframe *tf,int *retval){
 			result=thread_fork(name,childproc,(void *)tf,(void *)tf,(unsigned long)0);				
 			if (result!=0){
 				*retval=result;
+				lock_release(lockfork);
 				return -1;
 
 
 			}
 			if(curproc->pid==i){
 				*retval=0;
+				lock_release(lockfork);
 				return 0;
 			}
 			else{
 				*retval=i;
+				lock_release(lockfork);
 				return 0;
 			}
 		}
@@ -172,8 +211,7 @@ int fork(struct trapframe *tf,int *retval){
 	
 }
 int sys_getpid(int *retval){
-	(void)retval;
-	retval=&curproc->pid;
+	*retval=curproc->pid;
 	return 0;
 
 
@@ -343,6 +381,8 @@ sys_write(int fd, const void *buf, size_t buflen,int *retval)
 
 void _exit(int exitcode){
 	(void) exitcode;
+
+
 	thread_exit();		
 		
 }
