@@ -58,8 +58,11 @@ main(int argc, char **argv)
 
 	(void) argc;
 	(void) argv;
-
-	printf("Hello world\n");
+	int pid;
+	
+	pid=fork();
+	printf("x\n");	
+	printf((const char*)pid);
 
 	return 0;
 }
