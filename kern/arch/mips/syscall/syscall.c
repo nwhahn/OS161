@@ -111,7 +111,8 @@ syscall(struct trapframe *tf)
 	
 	    case SYS_execv:
 		
-		err= exec((char *)tf->tf_a0,(char **)tf->tf_a1,&retval);
+		err=0;
+		exec((char *)tf->tf_a0,(char **)tf->tf_a1,&retval);
 		break;
 
 	    case SYS_fork:
